@@ -27,13 +27,15 @@ export default function LoginForm({ className, ...props }: React.ComponentProps<
 	};
 
 	return (
-		<div className={cn("flex flex-col gap-6", className)} {...props}>
+		<div className={cn("flex flex-col gap-8", className)} {...props}>
 			<Card>
-				<CardHeader className="text-center">
-					<CardTitle className="text-xl">Welcome back</CardTitle>
-					<CardDescription>Login with your Google account</CardDescription>
+				<CardHeader className="space-y-3 pb-8 text-center">
+					<CardTitle className="text-3xl font-bold tracking-tight">Welcome back</CardTitle>
+					<CardDescription className="text-base">
+						Login with your Google account to continue
+					</CardDescription>
 				</CardHeader>
-				<CardContent>
+				<CardContent className="pb-8">
 					<form>
 						<FieldGroup>
 							<Field>
@@ -43,8 +45,9 @@ export default function LoginForm({ className, ...props }: React.ComponentProps<
 									variant="outline"
 									type="button"
 									onClick={handleGoogleLogin}
+									className="h-12 w-full gap-3 text-base"
 								>
-									<FaGoogle />
+									<FaGoogle className="text-lg" />
 									Login with Google
 								</LoadingButton>
 							</Field>
@@ -74,9 +77,16 @@ export default function LoginForm({ className, ...props }: React.ComponentProps<
 					</form>
 				</CardContent>
 			</Card>
-			<FieldDescription className="px-6 text-center">
-				By clicking continue, you agree to our <a href="#">Terms of Service</a> and{" "}
-				<a href="#">Privacy Policy</a>.
+			<FieldDescription className="px-8 text-center text-sm leading-relaxed">
+				By clicking continue, you agree to our{" "}
+				<a href="#" className="underline underline-offset-4 transition-opacity hover:opacity-80">
+					Terms of Service
+				</a>{" "}
+				and{" "}
+				<a href="#" className="underline underline-offset-4 transition-opacity hover:opacity-80">
+					Privacy Policy
+				</a>
+				.
 			</FieldDescription>
 		</div>
 	);
