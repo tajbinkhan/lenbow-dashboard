@@ -23,3 +23,9 @@ export const apiRoute = {
 	me: "/auth/me",
 	logout: "/auth/logout"
 } as const;
+
+const DEFAULT_LOGIN_REDIRECT = route.private.dashboard;
+
+const appRoutePrefix = process.env.NEXT_PUBLIC_FRONTEND_URL;
+
+export { appRoutePrefix, DEFAULT_LOGIN_REDIRECT };
