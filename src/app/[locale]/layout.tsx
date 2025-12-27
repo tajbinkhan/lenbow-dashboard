@@ -6,6 +6,7 @@ import { notFound } from "next/navigation";
 import { Suspense } from "react";
 
 import Loader from "@/components/ui/loader";
+import { Toaster } from "@/components/ui/sonner";
 
 import "./globals.css";
 import { routing } from "@/i18n/routing";
@@ -46,7 +47,10 @@ export default async function RootLayout({
 					<ReduxProvider>
 						<ThemeProvider attribute="class" defaultTheme="system" enableSystem>
 							<RedirectProvider>
-								<NextIntlClientProvider>{children}</NextIntlClientProvider>
+								<NextIntlClientProvider>
+									{children}
+									<Toaster position="top-right" richColors closeButton />
+								</NextIntlClientProvider>
 							</RedirectProvider>
 						</ThemeProvider>
 					</ReduxProvider>

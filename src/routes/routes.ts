@@ -21,7 +21,9 @@ export const apiRoute = {
 	csrf: "/csrf",
 	googleLogin: "/auth/google",
 	me: "/auth/me",
-	logout: "/auth/logout"
+	logout: "/auth/logout",
+	transactions: "/transactions",
+	requestedTransactions: "/transactions/requested"
 } as const;
 
 const DEFAULT_LOGIN_REDIRECT = route.private.dashboard;

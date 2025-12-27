@@ -1,7 +1,6 @@
 import {
 	Bell,
 	Coins,
-	CreditCard,
 	FileText,
 	Hand,
 	HelpCircle,
@@ -41,11 +40,6 @@ const navItem: NavItemProps[] = [
 		title: "Lend",
 		url: route.private.lend,
 		icon: Coins
-	},
-	{
-		title: "Repay",
-		url: route.private.repay,
-		icon: CreditCard
 	}
 ];
 

@@ -64,7 +64,7 @@ export default function LoginTemplate() {
 					<div className="space-y-4">
 						<LoadingButton
 							type="button"
-							className="group hover:shadow-primary/20 w-full gap-3 transition-all duration-200 hover:shadow-lg"
+							className="group hover:shadow-primary/20 h-auto w-full gap-3 py-3.5 transition-all duration-200 hover:shadow-lg"
 							size="lg"
 							isLoading={isPending}
 							loadingText="Redirecting..."

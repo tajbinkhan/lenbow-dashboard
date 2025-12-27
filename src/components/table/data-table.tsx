@@ -33,6 +33,7 @@ interface DataTableProps<TData, TValue> {
 	isLoading: boolean;
 	data: TData[];
 	pagination: Pagination;
+	selectedCount?: number;
 	handleOptionFilter: (key: string, value?: string | string[] | null) => void;
 	DataTableToolbar: React.ComponentType<{ table: TableInstance<TData> }>;
 }
@@ -42,6 +43,7 @@ export function DataTable<TData, TValue>({
 	isLoading,
 	data,
 	pagination,
+	selectedCount = 0,
 	handleOptionFilter,
 	DataTableToolbar
 }: DataTableProps<TData, TValue>) {
@@ -49,6 +51,13 @@ export function DataTable<TData, TValue>({
 	const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({});
 	const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
 	const [sorting, setSorting] = React.useState<SortingState>([]);
+
+	// Reset table row selection when selectedCount becomes 0 (e.g., when filters are triggered)
+	React.useEffect(() => {
+		if (selectedCount === 0 && Object.keys(rowSelection).length > 0) {
+			setRowSelection({});
+		}
+	}, [selectedCount, rowSelection]);
 
 	// eslint-disable-next-line react-hooks/incompatible-library
 	const table = useReactTable({
@@ -126,6 +135,7 @@ export function DataTable<TData, TValue>({
 			<DataTablePagination
 				table={table}
 				pagination={pagination}
+				selectedCount={selectedCount}
 				handleOptionFilter={handleOptionFilter}
 			/>
 		</div>

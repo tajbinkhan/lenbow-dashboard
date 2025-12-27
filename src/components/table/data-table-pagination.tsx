@@ -16,12 +16,14 @@ import { useIsMobile } from "@/hooks/use-mobile";
 interface DataTablePaginationProps<TData> {
 	table: Table<TData>;
 	pagination: Pagination;
+	selectedCount?: number;
 	handleOptionFilter: (key: string, value?: string | string[] | null) => void;
 }
 
 export function DataTablePagination<TData>({
 	table,
 	pagination,
+	selectedCount = 0,
 	handleOptionFilter
 }: DataTablePaginationProps<TData>) {
 	const isMobile = useIsMobile();
@@ -37,8 +39,7 @@ export function DataTablePagination<TData>({
 				{/* Top Section: Selection + Rows per page */}
 				<div className="flex items-center justify-between text-sm">
 					<div className="text-muted-foreground">
-						{table.getFilteredSelectedRowModel().rows.length} of{" "}
-						{table.getFilteredRowModel().rows.length} row(s) selected.
+						{selectedCount} of {pagination.totalItems} row(s) selected.
 					</div>
 					<div className="flex items-center space-x-2">
 						<p className="text-sm font-medium">Rows</p>
@@ -126,8 +127,7 @@ export function DataTablePagination<TData>({
 	return (
 		<div className="flex items-center justify-between px-2">
 			<div className="text-muted-foreground flex-1 text-sm">
-				{table.getFilteredSelectedRowModel().rows.length} of{" "}
-				{table.getFilteredRowModel().rows.length} row(s) selected.
+				{selectedCount} of {pagination.totalItems} row(s) selected.
 			</div>
 			<div className="flex items-center space-x-6 lg:space-x-8">
 				<div className="flex items-center space-x-2">

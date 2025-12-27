@@ -15,7 +15,7 @@ import { Button } from "@/components/ui/button";
 import { LoadingButton } from "@/components/ui/loading-button";
 
 interface DataTableDeleteSelectedProps {
-	selectedIds: number[];
+	selectedIds: string[];
 	isDeleting: boolean;
 	handleDeleteSelected: () => void;
 	showDeleteAll?: boolean;

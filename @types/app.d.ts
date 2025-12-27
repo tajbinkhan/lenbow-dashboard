@@ -56,6 +56,17 @@ interface ApiResponse<T> {
 	statusCode: number;
 	message: string;
 	data?: T;
+	pagination?: Pagination;
+	timestamp: string;
+	path: string;
+	code?: string;
+}
+
+interface ApiCursorResponse<T> {
+	statusCode: number;
+	message: string;
+	data?: T;
+	cursorPagination?: CursorPagination;
 	timestamp: string;
 	path: string;
 	code?: string;

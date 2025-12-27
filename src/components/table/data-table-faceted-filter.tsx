@@ -1,5 +1,5 @@
 import { Check, PlusCircle } from "lucide-react";
-import { useState } from "react";
+import { useMemo } from "react";
 
 import { cn } from "@/lib/utils";
 
@@ -21,7 +21,6 @@ interface DataTableFacetedFilterProps {
 	title?: string;
 	queryParameter: string;
 	selectedGlobalValues: GlobalValues | undefined;
-	setSelectedGlobalValues: React.Dispatch<React.SetStateAction<GlobalValues | undefined>>;
 	handleOptionFilter: (key: string, value?: string | string[] | null) => void;
 	searchParams: URLSearchParams;
 	options:
@@ -37,7 +36,6 @@ export function DataTableFacetedFilter({
 	title,
 	queryParameter,
 	selectedGlobalValues,
-	setSelectedGlobalValues,
 	searchParams,
 	handleOptionFilter,
 	options
@@ -46,25 +44,22 @@ export function DataTableFacetedFilter({
 
 	const value = defaultValue?.split(",");
 
-	const [selectedValues, setSelectedValues] = useState<string[] | undefined>(
-		!selectedGlobalValues ? undefined : value
-	);
+	// Derive selectedValues from URL params instead of storing in state
+	const selectedValues = useMemo(() => {
+		const urlValue = searchParams.get(queryParameter);
+		return urlValue ? urlValue.split(",") : undefined;
+	}, [searchParams, queryParameter]);
 
 	const handleSelect = (value: string) => {
 		if (selectedValues?.includes(value)) {
 			const filteredValues = selectedValues?.filter(val => val !== value);
-			setSelectedValues(filteredValues);
-			setSelectedGlobalValues({ [queryParameter]: filteredValues });
 			handleOptionFilter(queryParameter, filteredValues.length > 0 ? filteredValues : undefined);
 		} else {
-			setSelectedValues([...(selectedValues || []), value]);
-			setSelectedGlobalValues({ [queryParameter]: [...(selectedValues || []), value] });
 			handleOptionFilter(queryParameter, [...(selectedValues || []), value].join(","));
 		}
 	};
 
 	const handleClearFilter = () => {
-		setSelectedValues(undefined);
 		handleOptionFilter(queryParameter, undefined);
 	};
 
