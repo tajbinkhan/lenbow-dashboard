@@ -2,21 +2,18 @@
 
 import { ColumnDef } from "@tanstack/react-table";
 
-import { ExtendedBadge } from "@/components/custom-ui/extended-badge";
+import { ExtendedBadge, type ExtendedVariant } from "@/components/custom-ui/extended-badge";
 import { DataTable } from "@/components/table/data-table";
 import { DataTableColumnHeader } from "@/components/table/data-table-column-header";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Checkbox } from "@/components/ui/checkbox";
 
+import useAuth from "@/hooks/use-auth";
 import { DataTableRowActions } from "@/templates/Requests/Table/Components/DataTableRowActions";
 import { DataTableToolbar } from "@/templates/Requests/Table/Components/DataTableToolbar";
 import { useRequests } from "@/templates/Requests/Table/Hook/useRequests";
 
-interface DataColumnsProps {
-	data: RequestsInterface[];
-}
-
-export default function DataColumns({ data }: DataColumnsProps) {
+export default function DataColumns() {
 	const {
 		isLoading,
 		selectedIds,
@@ -28,6 +25,8 @@ export default function DataColumns({ data }: DataColumnsProps) {
 		pagination,
 		tableData
 	} = useRequests();
+
+	const { user } = useAuth();
 
 	const columns: ColumnDef<RequestsInterface>[] = [
 		{
@@ -99,19 +98,29 @@ export default function DataColumns({ data }: DataColumnsProps) {
 				/>
 			),
 			cell: ({ row }) => {
+				const image =
+					user && user.id === row.original.borrower.id
+						? row.original.lender.image
+						: row.original.borrower.image;
+
+				const userName =
+					user && user.id === row.original.borrower.id
+						? row.original.lender.name || row.original.lender.email
+						: row.original.borrower.name || row.original.borrower.email;
+
 				return (
 					<div className="flex items-center gap-2">
 						<Avatar>
 							<AvatarImage
-								src={row.original.contact?.image || undefined}
-								alt={row.original.contact?.name || ""}
+								src={image || undefined}
+								alt={userName}
 								width={40}
 								height={40}
 								className="rounded-full"
 							/>
-							<AvatarFallback>{row.original.contact?.name?.slice(0, 2)}</AvatarFallback>
+							<AvatarFallback>{userName?.slice(0, 2)}</AvatarFallback>
 						</Avatar>
-						{row.original.contact?.name || "Unknown"}
+						<span className="max-w-32 truncate">{userName || "Unknown"}</span>
 					</div>
 				);
 			}
@@ -127,7 +136,34 @@ export default function DataColumns({ data }: DataColumnsProps) {
 					title="Email"
 				/>
 			),
-			cell: ({ row }) => row.original.contact?.email
+			cell: ({ row }) => {
+				const email =
+					user && user.id === row.original.borrower.id
+						? row.original.lender.email
+						: row.original.borrower.email;
+
+				return <span>{email}</span>;
+			}
+		},
+		{
+			accessorKey: "type",
+			header: ({ column }) => (
+				<DataTableColumnHeader
+					column={column}
+					sortBy={sortBy}
+					sortOrder={sortOrder}
+					handleSorting={handleSorting}
+					title="Type"
+				/>
+			),
+			cell: ({ row }) => {
+				const variant: ExtendedVariant = row.original.type === "lend" ? "cyan" : "destructive";
+				return (
+					<ExtendedBadge variant={variant}>
+						{row.original.type.charAt(0).toUpperCase() + row.original.type.slice(1)}
+					</ExtendedBadge>
+				);
+			}
 		},
 		{
 			accessorKey: "amount",
@@ -163,7 +199,7 @@ export default function DataColumns({ data }: DataColumnsProps) {
 			}
 		},
 		{
-			accessorKey: "createdAt",
+			accessorKey: "requestDate",
 			header: ({ column }) => (
 				<DataTableColumnHeader
 					column={column}
@@ -174,12 +210,36 @@ export default function DataColumns({ data }: DataColumnsProps) {
 				/>
 			),
 			cell: ({ row }) =>
-				new Date(row.original.createdAt || "").toLocaleDateString(undefined, {
+				new Date(row.original.requestDate || "").toLocaleDateString(undefined, {
 					year: "numeric",
 					month: "long",
 					day: "numeric",
 					hour12: true
 				})
+		},
+		{
+			accessorKey: "dueDate",
+			header: ({ column }) => (
+				<DataTableColumnHeader
+					column={column}
+					sortBy={sortBy}
+					sortOrder={sortOrder}
+					handleSorting={handleSorting}
+					title="Due Date"
+				/>
+			),
+			cell: ({ row }) => {
+				if (!row.original.dueDate) {
+					return "N/A";
+				}
+
+				return new Date(row.original.dueDate || "").toLocaleDateString(undefined, {
+					year: "numeric",
+					month: "long",
+					day: "numeric",
+					hour12: true
+				});
+			}
 		},
 		{
 			id: "actions",

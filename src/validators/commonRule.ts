@@ -27,27 +27,10 @@ export const validateNumber = (name: string) => {
 };
 
 export const validateClientNumber = (name: string, min: number = 1) => {
-	return z
-		.string({
-			error: issue =>
-				issue.input === undefined
-					? zodMessages.error.required.fieldIsRequired(name)
-					: zodMessages.error.invalid.invalidString(name)
-		})
+	return validateString(name)
 		.min(1, zodMessages.error.required.fieldIsRequired(name))
-		.refine(value => {
-			return !isNaN(Number(value));
-		}, zodMessages.error.invalid.invalidNumber(name))
-		.or(
-			z.coerce
-				.number({
-					error: issue =>
-						issue.input === undefined
-							? zodMessages.error.required.fieldIsRequired(name)
-							: zodMessages.error.invalid.invalidString(name)
-				})
-				.min(min, zodMessages.error.required.fieldIsRequired(name))
-		);
+		.regex(/^\d+(\.\d+)?$/, zodMessages.error.invalid.invalidNumber(name))
+		.transform(val => Number(val));
 };
 
 export const validatePositiveNumber = (name: string) => {

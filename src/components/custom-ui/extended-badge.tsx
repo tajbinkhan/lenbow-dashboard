@@ -35,7 +35,7 @@ const extendedBadgeVariants = cva("", {
 	}
 });
 
-type ExtendedVariant = VariantProps<typeof extendedBadgeVariants>["variant"];
+export type ExtendedVariant = VariantProps<typeof extendedBadgeVariants>["variant"];
 
 function ExtendedBadge({
 	className,
