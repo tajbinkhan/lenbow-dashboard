@@ -4,7 +4,6 @@ import { DateRange } from "react-day-picker";
 import { toast } from "sonner";
 
 import { initialPagination } from "@/core/constants";
-// import { useDeleteRequestsMutation, useGetRequestsQuery } from "@/templates/Requests/Redux/RequestsAPISlice"; // Uncomment this line when the API slice is available
 import { usePathname, useRouter } from "@/i18n/navigation";
 import { useTransactionRequestsListQuery } from "@/redux/APISlices/TransactionAPISlice";
 import { initialRequestsApiSearchParams } from "@/templates/Requests/Table/Data/data";
@@ -37,6 +36,7 @@ interface RequestsContextType {
 	handleOptionFilter: (key: string, value: string | string[] | undefined | null) => void;
 	handleResetAll: () => void;
 	handleRefresh: () => ReturnType<typeof toast.promise>;
+	isFetching: boolean;
 
 	// Additional States & Functions
 	isRequestsCreateModalOpen: boolean;
@@ -77,8 +77,8 @@ export default function RequestsProvider({ children }: GlobalLayoutProps) {
 	const {
 		data: transactionRequestsResponse,
 		isLoading,
-		isError,
-		refetch
+		refetch,
+		isFetching
 	} = useTransactionRequestsListQuery(apiSearchParams);
 
 	// Router & Pathname
@@ -375,11 +375,6 @@ export default function RequestsProvider({ children }: GlobalLayoutProps) {
 			success: "Data refreshed successfully!",
 			error: "Failed to refresh data"
 		});
-		return toast.promise(Promise.resolve(), {
-			loading: "Refreshing data...",
-			success: "Data refreshed successfully!",
-			error: "Failed to refresh data"
-		});
 	};
 
 	/**
@@ -416,6 +411,7 @@ export default function RequestsProvider({ children }: GlobalLayoutProps) {
 				handleResetAll,
 				handleSearch,
 				handleRefresh,
+				isFetching,
 
 				// Additional States & Functions
 				isRequestsCreateModalOpen,

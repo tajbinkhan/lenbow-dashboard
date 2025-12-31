@@ -23,7 +23,9 @@ export const apiRoute = {
 	me: "/auth/me",
 	logout: "/auth/logout",
 	transactions: "/transactions",
-	requestedTransactions: "/transactions/requested"
+	requestedTransactions: "/transactions/requested",
+	transactionConnectedContacts: "/transactions/connected-contacts",
+	transactionContact: (userId: string) => `/transactions/contact/${userId}`
 } as const;
 
 const DEFAULT_LOGIN_REDIRECT = route.private.dashboard;

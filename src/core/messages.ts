@@ -118,7 +118,8 @@ export const zodMessages = {
 			invalidUsername: (field: string) =>
 				`${field} must contain only letters, numbers, and underscores.`,
 			invalidUsernameOrEmail: (field: string) =>
-				`${field} must be a valid username or email address.`
+				`${field} must be a valid username or email address.`,
+			invalidUUID: (field: string) => `${field} must be a valid UUID.`
 		}
 	}
 };

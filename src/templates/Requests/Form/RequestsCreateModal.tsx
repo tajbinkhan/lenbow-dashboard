@@ -1,13 +1,16 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { ChevronLeftIcon } from "lucide-react";
+import { CalendarIcon, ChevronLeftIcon } from "lucide-react";
+import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
+import { Calendar } from "@/components/ui/calendar";
 import { Field, FieldError, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import InputNumeric from "@/components/ui/input-numeric";
 import { LoadingButton } from "@/components/ui/loading-button";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import {
 	ResponsiveDialog,
 	ResponsiveDialogClose,
@@ -17,8 +20,16 @@ import {
 	ResponsiveDialogHeader,
 	ResponsiveDialogTitle
 } from "@/components/ui/responsive-dialog";
+import {
+	Select,
+	SelectContent,
+	SelectItem,
+	SelectTrigger,
+	SelectValue
+} from "@/components/ui/select";
 
 import { useCreateTransactionRequestMutation } from "@/redux/APISlices/TransactionAPISlice";
+import FetchConnectedContactList from "@/templates/Requests/Form/FetchConnectedContactList";
 import {
 	CreateRequestsSchema,
 	createRequestsSchema
@@ -29,17 +40,32 @@ interface RequestsCreateModalProps {
 	setIsCreateModalOpen: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
+function formatDate(date: Date | undefined) {
+	if (!date) {
+		return "";
+	}
+	return date.toLocaleDateString("en-US", {
+		day: "2-digit",
+		month: "long",
+		year: "numeric"
+	});
+}
+
 export default function RequestsCreateModal({
 	isCreateModalOpen,
 	setIsCreateModalOpen
 }: RequestsCreateModalProps) {
-	const [createTransactionRequest, { isLoading, reset }] = useCreateTransactionRequestMutation();
+	const [open, setOpen] = useState<boolean>(false);
+
+	const [createTransactionRequest, { isLoading }] = useCreateTransactionRequestMutation();
 
 	const form = useForm({
 		resolver: zodResolver(createRequestsSchema),
 		defaultValues: {
 			lenderId: "",
-			amount: ""
+			amount: "",
+			type: "borrow",
+			dueDate: undefined
 		}
 	});
 
@@ -47,7 +73,9 @@ export default function RequestsCreateModal({
 		try {
 			await createTransactionRequest({
 				lenderId: data.lenderId,
-				amount: Number(data.amount)
+				amount: Number(data.amount),
+				type: data.type,
+				...(data.dueDate && { dueDate: data.dueDate })
 			})
 				.then(response => {
 					if (response.data) {
@@ -82,14 +110,8 @@ export default function RequestsCreateModal({
 										control={form.control}
 										render={({ field, fieldState }) => (
 											<Field data-invalid={fieldState.invalid}>
-												<FieldLabel htmlFor="lenderId">Lender ID</FieldLabel>
-												<Input
-													{...field}
-													id="lenderId"
-													aria-invalid={fieldState.invalid}
-													placeholder="Login button not working on mobile"
-													autoComplete="off"
-												/>
+												<FieldLabel htmlFor="lenderId">Account ID</FieldLabel>
+												<FetchConnectedContactList value={field.value} onChange={field.onChange} />
 												{fieldState.invalid && <FieldError errors={[fieldState.error]} />}
 											</Field>
 										)}
@@ -107,6 +129,100 @@ export default function RequestsCreateModal({
 													placeholder="Enter amount"
 													inputMode="numeric"
 												/>
+												{fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+											</Field>
+										)}
+									/>
+									<Controller
+										name="type"
+										control={form.control}
+										render={({ field, fieldState }) => (
+											<Field data-invalid={fieldState.invalid}>
+												<FieldLabel htmlFor="type">Loan Type</FieldLabel>
+												<Select defaultValue={field.value} onValueChange={field.onChange}>
+													<SelectTrigger
+														id="type"
+														className="w-full cursor-pointer focus-visible:border-indigo-500 focus-visible:ring-indigo-500/20 dark:focus-visible:ring-indigo-500/40"
+													>
+														<SelectValue placeholder="Select a loan type" />
+													</SelectTrigger>
+													<SelectContent>
+														<SelectItem value="borrow">Borrow</SelectItem>
+														<SelectItem value="lend">Lend</SelectItem>
+													</SelectContent>
+												</Select>
+												{fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+											</Field>
+										)}
+									/>
+									<Controller
+										name="dueDate"
+										control={form.control}
+										render={({ field, fieldState }) => (
+											<Field data-invalid={fieldState.invalid}>
+												<FieldLabel htmlFor="dueDate">Due Date</FieldLabel>
+												<div className="relative flex gap-2">
+													<Input
+														id="date"
+														value={field.value ? formatDate(field.value) : ""}
+														placeholder="June 01, 2025"
+														className="bg-background cursor-pointer pr-10 caret-transparent"
+														readOnly
+														inputMode="none" // prevents mobile keyboard
+														onClick={() => setOpen(true)}
+														onFocus={() => setOpen(true)}
+														onKeyDown={e => {
+															// allow opening via keyboard, but prevent typing
+															if (["Enter", " ", "ArrowDown"].includes(e.key)) {
+																e.preventDefault();
+																setOpen(true);
+															} else {
+																e.preventDefault();
+															}
+														}}
+													/>
+
+													<Popover open={open} onOpenChange={setOpen}>
+														<PopoverTrigger asChild>
+															<Button
+																id="date-picker"
+																type="button"
+																variant="ghost"
+																className="absolute top-1/2 right-2 size-6 -translate-y-1/2"
+																onClick={() => setOpen(true)}
+																tabIndex={-1} // optional: keep focus behavior on the input
+															>
+																<CalendarIcon className="size-3.5" />
+																<span className="sr-only">Select date</span>
+															</Button>
+														</PopoverTrigger>
+
+														<PopoverContent
+															className="w-auto overflow-hidden p-0"
+															align="end"
+															alignOffset={-8}
+															sideOffset={10}
+														>
+															<Calendar
+																mode="single"
+																selected={field.value}
+																captionLayout="dropdown"
+																defaultMonth={field.value ?? new Date()}
+																startMonth={new Date()}
+																endMonth={
+																	new Date(new Date().setFullYear(new Date().getFullYear() + 5))
+																}
+																disabled={date => date < new Date()}
+																onSelect={date => {
+																	if (!date) return;
+																	field.onChange(date);
+																	setOpen(false);
+																}}
+															/>
+														</PopoverContent>
+													</Popover>
+												</div>
+
 												{fieldState.invalid && <FieldError errors={[fieldState.error]} />}
 											</Field>
 										)}

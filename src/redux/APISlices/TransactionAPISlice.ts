@@ -5,11 +5,20 @@ import { baseQueryWithCSRF } from "@/lib/rtk-base-query";
 import { apiRoute } from "@/routes/routes";
 import { CreateRequestsSchema } from "@/templates/Requests/Validation/CreateRequests.schema";
 
+export interface ConnectedContactList {
+	userId: string;
+	name: string | null;
+	email: string;
+	image: string | null;
+	phone: string | null;
+	connectedAt: Date;
+}
+
 export const transactionApiSlice = createApi({
 	reducerPath: "transactionApiReducer",
 	keepUnusedDataFor: 0,
 	baseQuery: baseQueryWithCSRF,
-	tagTypes: ["Transaction"],
+	tagTypes: ["Transaction", "TransactionContacts", "TransactionContact"],
 	endpoints: builder => ({
 		transactionRequestsList: builder.query<
 			ApiResponse<RequestsInterface[]>,
@@ -35,6 +44,24 @@ export const transactionApiSlice = createApi({
 			invalidatesTags: ["Transaction"]
 		}),
 
+		transactionContactsList: builder.query<ApiResponse<ConnectedContactList[]>, void>({
+			query: () => ({
+				url: apiRoute.transactionConnectedContacts,
+				method: "GET"
+			}),
+			providesTags: ["TransactionContacts"]
+		}),
+
+		getTransactionContactById: builder.query<ApiResponse<ConnectedContactList>, { userId: string }>(
+			{
+				query: ({ userId }) => ({
+					url: apiRoute.transactionContact(userId),
+					method: "GET"
+				}),
+				providesTags: ["TransactionContact"]
+			}
+		),
+
 		deleteTransactionRequest: builder.mutation<
 			ApiResponse<string | null>,
 			{ transactionIds: string[] }
@@ -53,6 +80,8 @@ export const transactionApiSlice = createApi({
 export const {
 	useTransactionRequestsListQuery,
 	useCreateTransactionRequestMutation,
+	useTransactionContactsListQuery,
+	useLazyGetTransactionContactByIdQuery,
 	useDeleteTransactionRequestMutation
 } = transactionApiSlice;
 

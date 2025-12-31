@@ -1,8 +1,9 @@
 "use client";
 
 import { Table } from "@tanstack/react-table";
-import { Plus, Search, X } from "lucide-react";
+import { Plus, RefreshCw, Search, X } from "lucide-react";
 
+import { ExtendedButton } from "@/components/custom-ui/extended-button";
 import DataTableDeleteSelected from "@/components/table/data-table-delete-selected";
 import { DataTableFacetedFilter } from "@/components/table/data-table-faceted-filter";
 import { DataTableViewOptions } from "@/components/table/data-table-view-options";
@@ -31,7 +32,9 @@ export function DataTableToolbar<TData>({ table }: DataTableToolbarProps<TData>)
 		handleOptionFilter,
 		searchParams,
 		isRequestsCreateModalOpen,
-		setIsRequestsCreateModalOpen
+		setIsRequestsCreateModalOpen,
+		handleRefresh,
+		isFetching
 	} = useRequests();
 
 	return (
@@ -75,15 +78,28 @@ export function DataTableToolbar<TData>({ table }: DataTableToolbarProps<TData>)
 					)}
 				</div>
 				<div className="flex items-center gap-2">
-					<Button
-						variant="outline"
+					<ExtendedButton
+						variant="default"
 						size="sm"
 						className="ml-auto hidden h-8 lg:flex"
 						onClick={() => setIsRequestsCreateModalOpen(true)}
 					>
 						<Plus className="size-4" aria-hidden="true" />
 						Add Requests
-					</Button>
+					</ExtendedButton>
+					<ExtendedButton
+						variant="orange"
+						size="sm"
+						className="ml-auto hidden h-8 lg:flex"
+						onClick={() => handleRefresh()}
+						disabled={isFetching}
+					>
+						<RefreshCw
+							className={`size-4 ${isFetching ? "animate-spin" : ""}`}
+							aria-hidden="true"
+						/>
+						Refresh
+					</ExtendedButton>
 					{tableData.length > 0 && (
 						<DataTableDeleteSelected
 							selectedIds={selectedIds}
