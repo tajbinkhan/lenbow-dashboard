@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 export default function ThemeToggle() {
-	const { theme, setTheme, resolvedTheme } = useTheme();
+	const { theme, setTheme } = useTheme();
 
 	const handleSetTheme = () => {
 		if (theme === "light") {
