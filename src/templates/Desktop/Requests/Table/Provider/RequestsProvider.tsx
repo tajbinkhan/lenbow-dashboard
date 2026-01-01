@@ -10,7 +10,7 @@ import {
 	useDeleteTransactionRequestMutation,
 	useTransactionRequestsListQuery
 } from "@/redux/APISlices/TransactionAPISlice";
-import { initialRequestsApiSearchParams } from "@/templates/Requests/Table/Data/data";
+import { initialRequestsApiSearchParams } from "@/templates/Desktop/Requests/Table/Data/data";
 
 // ✅ adjust path if needed
 

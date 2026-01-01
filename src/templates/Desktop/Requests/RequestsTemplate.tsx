@@ -4,8 +4,8 @@ import { Suspense } from "react";
 
 import Loader from "@/components/ui/loader";
 
-import RequestsProvider from "@/templates/Requests/Table/Provider/RequestsProvider";
-import RequestsTable from "@/templates/Requests/Table/RequestsTable";
+import RequestsProvider from "@/templates/Desktop/Requests/Table/Provider/RequestsProvider";
+import RequestsTable from "@/templates/Desktop/Requests/Table/RequestsTable";
 
 export default function RequestsTemplate() {
 	return (

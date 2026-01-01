@@ -22,11 +22,11 @@ import {
 } from "@/components/ui/responsive-dialog";
 
 import { useCreateTransactionRequestMutation } from "@/redux/APISlices/TransactionAPISlice";
-import FetchConnectedContactList from "@/templates/Requests/Form/FetchConnectedContactList";
+import FetchConnectedContactList from "@/templates/Desktop/Requests/Form/FetchConnectedContactList";
 import {
 	CreateRequestsSchema,
 	createRequestsSchema
-} from "@/templates/Requests/Validation/Requests.schema";
+} from "@/templates/Desktop/Requests/Validation/Requests.schema";
 
 interface RequestsCreateModalProps {
 	isCreateModalOpen: boolean;

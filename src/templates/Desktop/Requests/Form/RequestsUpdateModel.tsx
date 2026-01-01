@@ -26,11 +26,11 @@ import {
 	useLazyGetTransactionByIdQuery,
 	useUpdatePendingTransactionRequestMutation
 } from "@/redux/APISlices/TransactionAPISlice";
-import "@/templates/Requests/Validation/Requests.schema";
+import "@/templates/Desktop/Requests/Validation/Requests.schema";
 import {
 	UpdatePendingRequestsSchema,
 	updatePendingRequestsSchema
-} from "@/templates/Requests/Validation/Requests.schema";
+} from "@/templates/Desktop/Requests/Validation/Requests.schema";
 
 function formatDate(date: Date | undefined) {
 	if (!date) return "";

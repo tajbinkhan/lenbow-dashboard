@@ -9,9 +9,9 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Checkbox } from "@/components/ui/checkbox";
 
 import useAuth from "@/hooks/use-auth";
-import { DataTableRowActions } from "@/templates/Requests/Table/Components/DataTableRowActions";
-import { DataTableToolbar } from "@/templates/Requests/Table/Components/DataTableToolbar";
-import { useRequests } from "@/templates/Requests/Table/Hook/useRequests";
+import { DataTableRowActions } from "@/templates/Desktop/Requests/Table/Components/DataTableRowActions";
+import { DataTableToolbar } from "@/templates/Desktop/Requests/Table/Components/DataTableToolbar";
+import { useRequests } from "@/templates/Desktop/Requests/Table/Hook/useRequests";
 
 export default function DataColumns() {
 	const {

@@ -23,7 +23,7 @@ import {
 	useDeleteTransactionRequestMutation
 } from "@/redux/APISlices/TransactionAPISlice";
 import { useAppDispatch } from "@/redux/hooks";
-import RequestsUpdateModel from "@/templates/Requests/Form/RequestsUpdateModel";
+import RequestsUpdateModel from "@/templates/Desktop/Requests/Form/RequestsUpdateModel";
 
 interface DataTableRowActionsProps<TData> {
 	row: Row<TData>;

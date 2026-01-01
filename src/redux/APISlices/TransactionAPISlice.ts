@@ -6,7 +6,7 @@ import { apiRoute } from "@/routes/routes";
 import {
 	CreateRequestsSchema,
 	UpdatePendingRequestsSchema
-} from "@/templates/Requests/Validation/Requests.schema";
+} from "@/templates/Desktop/Requests/Validation/Requests.schema";
 
 export const transactionApiSlice = createApi({
 	reducerPath: "transactionApiReducer",

@@ -10,9 +10,9 @@ import { DataTableViewOptions } from "@/components/table/data-table-view-options
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
-import RequestsCreateModal from "@/templates/Requests/Form/RequestsCreateModal";
-import { TRANSACTION_TYPE } from "@/templates/Requests/Table/Data/data";
-import { useRequests } from "@/templates/Requests/Table/Hook/useRequests";
+import RequestsCreateModal from "@/templates/Desktop/Requests/Form/RequestsCreateModal";
+import { TRANSACTION_TYPE } from "@/templates/Desktop/Requests/Table/Data/data";
+import { useRequests } from "@/templates/Desktop/Requests/Table/Hook/useRequests";
 
 interface DataTableToolbarProps<TData> {
 	table: Table<TData>;
