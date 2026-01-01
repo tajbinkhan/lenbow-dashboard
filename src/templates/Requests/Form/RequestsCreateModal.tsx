@@ -1,6 +1,6 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { CalendarIcon, ChevronLeftIcon } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { toast } from "sonner";
 
@@ -20,13 +20,6 @@ import {
 	ResponsiveDialogHeader,
 	ResponsiveDialogTitle
 } from "@/components/ui/responsive-dialog";
-import {
-	Select,
-	SelectContent,
-	SelectItem,
-	SelectTrigger,
-	SelectValue
-} from "@/components/ui/select";
 
 import { useCreateTransactionRequestMutation } from "@/redux/APISlices/TransactionAPISlice";
 import FetchConnectedContactList from "@/templates/Requests/Form/FetchConnectedContactList";
@@ -64,17 +57,19 @@ export default function RequestsCreateModal({
 		defaultValues: {
 			lenderId: "",
 			amount: "",
-			type: "borrow",
 			dueDate: undefined
 		}
 	});
+
+	useEffect(() => {
+		if (isCreateModalOpen) form.reset();
+	}, [isCreateModalOpen, form]);
 
 	const onSubmit = async (data: CreateRequestsSchema) => {
 		try {
 			await createTransactionRequest({
 				lenderId: data.lenderId,
 				amount: Number(data.amount),
-				type: data.type,
 				...(data.dueDate && { dueDate: data.dueDate })
 			})
 				.then(response => {
@@ -111,7 +106,12 @@ export default function RequestsCreateModal({
 										render={({ field, fieldState }) => (
 											<Field data-invalid={fieldState.invalid}>
 												<FieldLabel htmlFor="lenderId">Account ID</FieldLabel>
-												<FetchConnectedContactList value={field.value} onChange={field.onChange} />
+												<FetchConnectedContactList
+													id="lenderId"
+													value={field.value}
+													onChange={field.onChange}
+													aria-invalid={fieldState.invalid}
+												/>
 												{fieldState.invalid && <FieldError errors={[fieldState.error]} />}
 											</Field>
 										)}
@@ -133,28 +133,7 @@ export default function RequestsCreateModal({
 											</Field>
 										)}
 									/>
-									<Controller
-										name="type"
-										control={form.control}
-										render={({ field, fieldState }) => (
-											<Field data-invalid={fieldState.invalid}>
-												<FieldLabel htmlFor="type">Loan Type</FieldLabel>
-												<Select defaultValue={field.value} onValueChange={field.onChange}>
-													<SelectTrigger
-														id="type"
-														className="w-full cursor-pointer focus-visible:border-indigo-500 focus-visible:ring-indigo-500/20 dark:focus-visible:ring-indigo-500/40"
-													>
-														<SelectValue placeholder="Select a loan type" />
-													</SelectTrigger>
-													<SelectContent>
-														<SelectItem value="borrow">Borrow</SelectItem>
-														<SelectItem value="lend">Lend</SelectItem>
-													</SelectContent>
-												</Select>
-												{fieldState.invalid && <FieldError errors={[fieldState.error]} />}
-											</Field>
-										)}
-									/>
+
 									<Controller
 										name="dueDate"
 										control={form.control}

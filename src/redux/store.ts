@@ -1,5 +1,6 @@
 import { configureStore } from "@reduxjs/toolkit";
 
+import { contactApiReducer, contactApiSlice } from "@/redux/APISlices/ContactAPISlice";
 import { transactionApiReducer, transactionApiSlice } from "@/redux/APISlices/TransactionAPISlice";
 import {
 	authenticationApiReducer,
@@ -12,12 +13,17 @@ export const makeStore = () => {
 		reducer: {
 			authReducer,
 			authenticationApiReducer,
-			transactionApiReducer
+			transactionApiReducer,
+			contactApiReducer
 		},
 		middleware: getDefaultMiddleware =>
 			getDefaultMiddleware({
 				serializableCheck: false
-			}).concat([authenticationApiSlice.middleware, transactionApiSlice.middleware])
+			}).concat([
+				authenticationApiSlice.middleware,
+				transactionApiSlice.middleware,
+				contactApiSlice.middleware
+			])
 	});
 };
 

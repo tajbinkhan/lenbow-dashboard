@@ -8,15 +8,6 @@ import {
 	UpdatePendingRequestsSchema
 } from "@/templates/Requests/Validation/Requests.schema";
 
-export interface ConnectedContactList {
-	userId: string;
-	name: string | null;
-	email: string;
-	image: string | null;
-	phone: string | null;
-	connectedAt: Date;
-}
-
 export const transactionApiSlice = createApi({
 	reducerPath: "transactionApiReducer",
 	keepUnusedDataFor: 0,
@@ -55,24 +46,6 @@ export const transactionApiSlice = createApi({
 			providesTags: ["Transaction"]
 		}),
 
-		transactionContactsList: builder.query<ApiResponse<ConnectedContactList[]>, void>({
-			query: () => ({
-				url: apiRoute.transactionConnectedContacts,
-				method: "GET"
-			}),
-			providesTags: ["TransactionContacts"]
-		}),
-
-		getTransactionContactById: builder.query<ApiResponse<ConnectedContactList>, { userId: string }>(
-			{
-				query: ({ userId }) => ({
-					url: apiRoute.transactionContact(userId),
-					method: "GET"
-				}),
-				providesTags: ["TransactionContact"]
-			}
-		),
-
 		updatePendingTransactionRequest: builder.mutation<
 			ApiResponse<RequestsInterface>,
 			{ transactionId: string; body: UpdatePendingRequestsSchema }
@@ -105,8 +78,6 @@ export const {
 	useCreateTransactionRequestMutation,
 	useGetTransactionByIdQuery,
 	useLazyGetTransactionByIdQuery,
-	useTransactionContactsListQuery,
-	useLazyGetTransactionContactByIdQuery,
 	useUpdatePendingTransactionRequestMutation,
 	useDeleteTransactionRequestMutation
 } = transactionApiSlice;

@@ -25,10 +25,10 @@ export const apiRoute = {
 	transactions: "/transactions",
 	transaction: (transactionId: string) => `/transactions/${transactionId}`,
 	requestedTransactions: "/transactions/requested",
-	transactionConnectedContacts: "/transactions/connected-contacts",
-	transactionContact: (userId: string) => `/transactions/contact/${userId}`,
 	updatePendingTransactionRequest: (transactionId: string) =>
-		`/transactions/${transactionId}/update-pending`
+		`/transactions/${transactionId}/update-pending`,
+	contact: (userId: string) => `/contacts/${userId}`,
+	connectedContacts: "/contacts/connected"
 } as const;
 
 const DEFAULT_LOGIN_REDIRECT = route.private.dashboard;

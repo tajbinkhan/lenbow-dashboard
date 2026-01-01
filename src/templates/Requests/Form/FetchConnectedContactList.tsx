@@ -16,27 +16,31 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 
 import {
 	ConnectedContactList,
-	useLazyGetTransactionContactByIdQuery,
-	useTransactionContactsListQuery
-} from "@/redux/APISlices/TransactionAPISlice";
+	useConnectedContactsListQuery,
+	useLazyGetContactByIdQuery
+} from "@/redux/APISlices/ContactAPISlice";
 import { validateUUID } from "@/validators/commonRule";
 
 interface FetchConnectedContactListProps {
 	value?: string;
 	onChange?: (value: string) => void;
+	"aria-invalid"?: boolean;
+	id?: string;
 }
 
 export default function FetchConnectedContactList({
 	value: controlledValue = "",
-	onChange
+	onChange,
+	"aria-invalid": ariaInvalid,
+	id
 }: FetchConnectedContactListProps) {
 	const [open, setOpen] = useState(false);
 	const [search, setSearch] = useState("");
 
-	const { isLoading, data } = useTransactionContactsListQuery();
+	const { isLoading, data } = useConnectedContactsListQuery();
 
 	const [newContact, { isLoading: isContactLoading, data: contactData }] =
-		useLazyGetTransactionContactByIdQuery();
+		useLazyGetContactByIdQuery();
 
 	const users: ConnectedContactList[] = useMemo(() => data?.data || [], [data?.data]);
 
@@ -70,7 +74,7 @@ export default function FetchConnectedContactList({
 
 			if (uuidValidation.success) {
 				const timer = setTimeout(() => {
-					newContact({ userId: search });
+					newContact({ contactId: search });
 				}, 500);
 
 				return () => clearTimeout(timer);
@@ -92,9 +96,11 @@ export default function FetchConnectedContactList({
 		<Popover open={open} onOpenChange={setOpen} modal={false}>
 			<PopoverTrigger asChild>
 				<Button
+					id={id}
 					variant="outline"
 					role="combobox"
 					aria-expanded={open}
+					aria-invalid={ariaInvalid}
 					className="w-full justify-between"
 				>
 					{selectedUser ? (

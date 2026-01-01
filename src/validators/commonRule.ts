@@ -31,8 +31,12 @@ const baseString = (
 ) => {
 	let schema = z
 		.string({
-			error: issue =>
-				issue.input === undefined ? makeError(name, "required") : makeError(name, "invalid")
+			error: issue => {
+				console.log(issue);
+				return issue.input === undefined || issue.input === null || issue.input === ""
+					? makeError(name, "required")
+					: makeError(name, "invalid");
+			}
 		})
 		.trim();
 
