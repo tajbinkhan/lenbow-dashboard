@@ -51,7 +51,7 @@ const navSupportingItem: NavItemProps[] = [
 	},
 	{
 		title: "People",
-		url: route.private.borrow,
+		url: route.private.people,
 		icon: Users
 	},
 	{

@@ -3,6 +3,7 @@ import { createApi } from "@reduxjs/toolkit/query/react";
 import { baseQueryWithCSRF } from "@/lib/rtk-base-query";
 
 import { apiRoute } from "@/routes/routes";
+import { PartialRepayBorrowSchema } from "@/templates/Desktop/Borrow/Validation/Borrow.schema";
 import {
 	CreateRequestsSchema,
 	RejectRequestsSchema,
@@ -92,6 +93,42 @@ export const transactionApiSlice = createApi({
 				body
 			}),
 			invalidatesTags: ["Transaction"]
+		}),
+
+		transactionBorrowList: builder.query<ApiResponse<RequestsInterface[]>, void>({
+			query: () => ({
+				url: apiRoute.transactions,
+				method: "GET",
+				params: {
+					type: "borrow",
+					status: "accepted,partially_paid"
+				}
+			}),
+			providesTags: ["Transaction"]
+		}),
+
+		completeRepayTransactionBorrow: builder.mutation<
+			ApiResponse<string | null>,
+			{ transactionIds: string[] }
+		>({
+			query: body => ({
+				url: apiRoute.completeRepayTransactionBorrow,
+				method: "PUT",
+				body
+			}),
+			invalidatesTags: ["Transaction"]
+		}),
+
+		partialRepayTransactionRequest: builder.mutation<
+			ApiResponse<string | null>,
+			{ transactionId: string; body: PartialRepayBorrowSchema }
+		>({
+			query: ({ transactionId, body }) => ({
+				url: apiRoute.partialRepayTransactionRequest(transactionId),
+				method: "PUT",
+				body
+			}),
+			invalidatesTags: ["Transaction"]
 		})
 	})
 });
@@ -105,7 +142,10 @@ export const {
 	useUpdatePendingTransactionRequestMutation,
 	useDeleteTransactionRequestMutation,
 	useApproveTransactionRequestMutation,
-	useRejectTransactionRequestMutation
+	useRejectTransactionRequestMutation,
+	useTransactionBorrowListQuery,
+	useCompleteRepayTransactionBorrowMutation,
+	usePartialRepayTransactionRequestMutation
 } = transactionApiSlice;
 
 export const transactionApiReducer = transactionApiSlice.reducer;

@@ -9,6 +9,7 @@ export const route = {
 		lend: "/lend",
 		repay: "/repay",
 		history: "/history",
+		people: "/people",
 		notifications: "/notifications",
 		support: "/support"
 	},
@@ -29,6 +30,9 @@ export const apiRoute = {
 		`/transactions/${transactionId}/update-pending`,
 	approveTransactionRequest: (transactionId: string) => `/transactions/${transactionId}/approved`,
 	rejectTransactionRequest: (transactionId: string) => `/transactions/${transactionId}/rejected`,
+	completeRepayTransactionBorrow: "/transactions/borrow/complete-repay",
+	partialRepayTransactionRequest: (transactionId: string) =>
+		`/transactions/${transactionId}/borrow/partial-repay`,
 	contact: (userId: string) => `/contacts/${userId}`,
 	connectedContacts: "/contacts/connected"
 } as const;

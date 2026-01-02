@@ -44,7 +44,7 @@ export function DataTableRowActions<TData>({ row }: DataTableRowActionsProps<TDa
 	const [isOpenApproveModal, setIsOpenApproveModal] = useState(false);
 
 	const [isUpdateDeleteModal, setIsUpdateDeleteModal] = useState(false);
-	const [isUpdateApproveModal, setIsUpdateApproveModal] = useState(false);
+	const [isOpenRejectModal, setIsOpenRejectModal] = useState(false);
 
 	// RTK Query mutation hook
 	const [deleteRequest] = useDeleteTransactionRequestMutation();
@@ -92,8 +92,8 @@ export function DataTableRowActions<TData>({ row }: DataTableRowActionsProps<TDa
 				{/* Request Reject Modal */}
 				<RequestsRejectModal
 					transactionId={data.id}
-					isRejectModalOpen={isUpdateApproveModal}
-					setIsRejectModalOpen={setIsUpdateApproveModal}
+					isRejectModalOpen={isOpenRejectModal}
+					setIsRejectModalOpen={setIsOpenRejectModal}
 				/>
 				{/* Approve Modal */}
 				<AlertDialog open={isOpenApproveModal} onOpenChange={setIsOpenApproveModal}>
@@ -136,7 +136,7 @@ export function DataTableRowActions<TData>({ row }: DataTableRowActionsProps<TDa
 					<Tooltip>
 						<TooltipTrigger asChild>
 							<ExtendedButton
-								onClick={() => setIsUpdateApproveModal(true)}
+								onClick={() => setIsOpenRejectModal(true)}
 								size={"icon"}
 								variant="warning"
 							>
