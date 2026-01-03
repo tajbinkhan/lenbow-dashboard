@@ -21,7 +21,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip
 
 import {
 	transactionApiSlice,
-	useCompleteRepaymentTransactionMutation
+	useUpdateTransactionStatusMutation
 } from "@/redux/APISlices/TransactionAPISlice";
 import { useAppDispatch } from "@/redux/hooks";
 import BorrowPartialRepayModal from "@/templates/Desktop/Borrow/Form/BorrowPartialRepayModal";
@@ -32,9 +32,9 @@ interface DataTableRowActionsProps<TData> {
 
 export function DataTableRowActions<TData>({ row }: DataTableRowActionsProps<TData>) {
 	const dispatch = useAppDispatch();
-	const data = row.original as BorrowInterface;
+	const data = row.original as TransactionInterface;
 
-	const type = data.type;
+	const type = data.status;
 
 	const [isPending, startTransition] = useTransition();
 	const [isOpenCompleteRepayModal, setIsOpenCompleteRepayModal] = useState(false);
@@ -42,25 +42,24 @@ export function DataTableRowActions<TData>({ row }: DataTableRowActionsProps<TDa
 	const [isUpdatePartialRepayModal, setIsUpdatePartialRepayModal] = useState(false);
 
 	// RTK Query mutation hook
-	const [completeRepaymentTransaction] = useCompleteRepaymentTransactionMutation();
+	const [updateTransactionStatus] = useUpdateTransactionStatusMutation();
 
 	const handleCompleteRepayBorrow = (id: string) => {
 		startTransition(async () => {
-			await completeRepaymentTransaction({ transactionIds: [id] })
+			await updateTransactionStatus({
+				transactionId: id,
+				body: { status: "requested_repay", reviewAmount: data.remainingAmount }
+			})
 				.unwrap()
 				.then(res => {
-					if (res.data) {
-						toast.warning(res.data);
-					} else {
-						toast.success(res.message);
-					}
+					toast.success(res.message);
 					setIsOpenCompleteRepayModal(false);
 					dispatch(transactionApiSlice.util.invalidateTags([{ type: "Transaction" }]));
 				})
 				.catch(error => {
 					setIsOpenCompleteRepayModal(false);
 					toast.error(
-						error?.data?.message || "Failed to completeRepay borrow. Please try again later."
+						error?.data?.message || "Failed to complete repay borrow. Please try again later."
 					);
 				});
 		});
@@ -106,6 +105,7 @@ export function DataTableRowActions<TData>({ row }: DataTableRowActionsProps<TDa
 							onClick={() => setIsUpdatePartialRepayModal(true)}
 							size={"icon"}
 							variant="teal"
+							disabled={type === "requested_repay"}
 						>
 							<RiRefund2Line />
 						</ExtendedButton>
@@ -120,7 +120,7 @@ export function DataTableRowActions<TData>({ row }: DataTableRowActionsProps<TDa
 						<ExtendedButton
 							size={"icon"}
 							onClick={() => setIsOpenCompleteRepayModal(true)}
-							disabled={isPending}
+							disabled={isPending || type === "requested_repay"}
 							variant="success"
 						>
 							<FaSackDollar />

@@ -1,15 +1,12 @@
 import { useSearchParams } from "next/navigation";
-import { createContext, useEffect, useMemo, useState, useTransition } from "react";
+import { createContext, useEffect, useMemo, useState } from "react";
 import { DateRange } from "react-day-picker";
 import { toast } from "sonner";
 
 import { initialPagination } from "@/core/constants";
 import { useDebounce } from "@/hooks/use-debounce";
 import { usePathname, useRouter } from "@/i18n/navigation";
-import {
-	useCompleteRepaymentTransactionMutation,
-	useTransactionBorrowListQuery
-} from "@/redux/APISlices/TransactionAPISlice";
+import { useTransactionBorrowListQuery } from "@/redux/APISlices/TransactionAPISlice";
 import { initialBorrowApiSearchParams } from "@/templates/Desktop/Borrow/Table/Data/data";
 
 // ✅ adjust path if needed
@@ -33,10 +30,8 @@ interface BorrowContextType {
 	setSearch: React.Dispatch<React.SetStateAction<string>>;
 	selectedGlobalValues: GlobalValues | undefined;
 	searchParams: URLSearchParams;
-	isCompletingRepay: boolean;
-	handleCompleteRepaySelected: () => void;
 	handleDateFilter: (date: DateRange) => void;
-	tableData: BorrowInterface[];
+	tableData: TransactionInterface[];
 	handleSearch: (event: React.FormEvent<HTMLFormElement>) => void;
 	handleSorting: (sortBy: string, sortOrder: "asc" | "desc") => void;
 	handleOptionFilter: (key: string, value: string | string[] | undefined | null) => void;
@@ -54,9 +49,6 @@ export const BorrowContext = createContext<BorrowContextType | undefined>(undefi
 export default function BorrowProvider({ children }: GlobalLayoutProps) {
 	const [id, setId] = useState<string | null>(null);
 	const [selectedIds, setSelectedIds] = useState<string[]>([]);
-
-	// Transitions
-	const [isCompletingRepay, startCompleteRepay] = useTransition();
 
 	// Search Params
 	const searchParams = useSearchParams();
@@ -86,8 +78,6 @@ export default function BorrowProvider({ children }: GlobalLayoutProps) {
 		refetch,
 		isFetching
 	} = useTransactionBorrowListQuery();
-
-	const [completeRepaymentTransaction] = useCompleteRepaymentTransactionMutation();
 
 	// Router & Pathname
 	const router = useRouter();
@@ -353,21 +343,6 @@ export default function BorrowProvider({ children }: GlobalLayoutProps) {
 		router.replace(`${pathname}?${newParams.toString()}`, { scroll: false });
 	};
 
-	/**
-	 * Handles the deletion of selected data.
-	 */
-	const handleCompleteRepaySelected = () => {
-		startCompleteRepay(async () => {
-			try {
-				await completeRepaymentTransaction({ transactionIds: selectedIds }).unwrap();
-				toast.success("Successfully completed repay for selected data");
-				setSelectedIds([]);
-			} catch (error) {
-				toast.error("Failed to complete repay for selected data");
-			}
-		});
-	};
-
 	const handleRefresh = () => {
 		return toast.promise(refetch().unwrap(), {
 			loading: "Refreshing data...",
@@ -395,8 +370,6 @@ export default function BorrowProvider({ children }: GlobalLayoutProps) {
 				search,
 				setSearch,
 				selectedGlobalValues,
-				isCompletingRepay,
-				handleCompleteRepaySelected,
 				handleDateFilter,
 				tableData,
 				searchParams,

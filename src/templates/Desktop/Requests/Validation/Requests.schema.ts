@@ -27,9 +27,16 @@ const updateRejectedTransactionSchema = z.object({
 	rejectionReason: validateString("Rejection Reason").optional()
 });
 
+const updateRequestedRepayTransactionSchema = z.object({
+	reviewAmount: validateClientNumber("Review Amount")
+});
+
 export const validateUpdateStatusTransactionSchema = z.discriminatedUnion("status", [
 	updateRejectedTransactionSchema.extend({
 		status: z.literal("rejected")
+	}),
+	updateRequestedRepayTransactionSchema.extend({
+		status: z.literal("requested_repay")
 	}),
 	z.object({
 		status: validateEnum("Transaction Status", [

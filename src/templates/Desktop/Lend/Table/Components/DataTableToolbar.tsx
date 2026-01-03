@@ -8,7 +8,7 @@ import { DataTableViewOptions } from "@/components/table/data-table-view-options
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
-import { useBorrow } from "@/templates/Desktop/Borrow/Table/Hook/useBorrow";
+import { useLend } from "@/templates/Desktop/Lend/Table/Hook/useLend";
 
 interface DataTableToolbarProps<TData> {
 	table: Table<TData>;
@@ -17,13 +17,15 @@ interface DataTableToolbarProps<TData> {
 export function DataTableToolbar<TData>({ table }: DataTableToolbarProps<TData>) {
 	const {
 		search,
+		tableData,
 		setSearch,
 		handleSearch,
 		selectedGlobalValues,
 		handleResetAll,
+		selectedIds,
 		handleRefresh,
 		isFetching
-	} = useBorrow();
+	} = useLend();
 
 	return (
 		<>

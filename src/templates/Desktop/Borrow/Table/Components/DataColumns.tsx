@@ -6,7 +6,7 @@ import { ExtendedBadge } from "@/components/custom-ui/extended-badge";
 import { DataTable } from "@/components/table/data-table";
 import { DataTableColumnHeader } from "@/components/table/data-table-column-header";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Checkbox } from "@/components/ui/checkbox";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 
 import useAuth from "@/hooks/use-auth";
 import { DataTableRowActions } from "@/templates/Desktop/Borrow/Table/Components/DataTableRowActions";
@@ -17,7 +17,6 @@ export default function DataColumns() {
 	const {
 		isLoading,
 		selectedIds,
-		setSelectedIds,
 		sortBy,
 		sortOrder,
 		handleSorting,
@@ -28,58 +27,7 @@ export default function DataColumns() {
 
 	const { user } = useAuth();
 
-	const columns: ColumnDef<BorrowInterface>[] = [
-		{
-			id: "select",
-			header: ({ table }) => {
-				const handleSelection = (value: boolean) => {
-					table.toggleAllPageRowsSelected(value);
-
-					// Update selectedIds based on the new selection state
-					if (value) {
-						const selectedIds = table.getRowModel().rows.map(row => row.original.id);
-						setSelectedIds(selectedIds);
-					} else {
-						setSelectedIds([]);
-					}
-				};
-
-				return (
-					<Checkbox
-						checked={
-							table.getIsAllPageRowsSelected() ||
-							(table.getIsSomePageRowsSelected() && "indeterminate")
-						}
-						onCheckedChange={value => handleSelection(!!value)}
-						aria-label="Select all"
-						className="translate-y-0.5 rounded"
-					/>
-				);
-			},
-			cell: ({ row }) => {
-				const handleSelection = (value: boolean) => {
-					row.toggleSelected(value);
-					setSelectedIds(prev => {
-						const newSelectedIds = value
-							? [...prev, row.original.id]
-							: prev.filter(id => id !== row.original.id);
-
-						return newSelectedIds;
-					});
-				};
-
-				return (
-					<Checkbox
-						checked={row.getIsSelected() || selectedIds.includes(row.original.id)}
-						onCheckedChange={value => handleSelection(!!value)}
-						aria-label="Select row"
-						className="translate-y-0.5 rounded"
-					/>
-				);
-			},
-			enableSorting: false,
-			enableHiding: false
-		},
+	const columns: ColumnDef<TransactionInterface>[] = [
 		{
 			accessorKey: "name",
 			header: ({ column }) => (
@@ -179,6 +127,34 @@ export default function DataColumns() {
 			cell: ({ row }) => row.original.amountPaid
 		},
 		{
+			accessorKey: "reviewAmount",
+			header: ({ column }) => (
+				<DataTableColumnHeader
+					column={column}
+					sortBy={sortBy}
+					sortOrder={sortOrder}
+					handleSorting={handleSorting}
+					title="Review Amount"
+				/>
+			),
+			cell: ({ row }) => {
+				if (row.original.reviewAmount > 0) {
+					return (
+						<Tooltip>
+							<TooltipTrigger asChild>
+								<ExtendedBadge variant="purple">{row.original.reviewAmount}</ExtendedBadge>
+							</TooltipTrigger>
+							<TooltipContent>
+								<p>
+									This amount is under review. The lender will confirm the requested amount shortly.
+								</p>
+							</TooltipContent>
+						</Tooltip>
+					);
+				} else return <span>{row.original.reviewAmount}</span>;
+			}
+		},
+		{
 			accessorKey: "status",
 			header: ({ column }) => (
 				<DataTableColumnHeader
@@ -205,6 +181,8 @@ export default function DataColumns() {
 							return "orange";
 						case "completed":
 							return "success";
+						case "requested_repay":
+							return "destructive";
 						default:
 							return "default";
 					}

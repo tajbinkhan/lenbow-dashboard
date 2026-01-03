@@ -17,7 +17,7 @@ import {
 	ResponsiveDialogTitle
 } from "@/components/ui/responsive-dialog";
 
-import { usePartialRepaymentTransactionMutation } from "@/redux/APISlices/TransactionAPISlice";
+import { useUpdateTransactionStatusMutation } from "@/redux/APISlices/TransactionAPISlice";
 import {
 	PartialRepayBorrowSchema,
 	partialRepayBorrowSchema
@@ -38,13 +38,16 @@ export default function BorrowPartialRepayModal(props: BorrowPartialRepayModalPr
 		}
 	});
 
-	const [partialRepaymentTransaction, { isLoading }] = usePartialRepaymentTransactionMutation();
+	const [updateTransactionStatus, { isLoading }] = useUpdateTransactionStatusMutation();
 
 	const onSubmit = async (data: PartialRepayBorrowSchema) => {
 		try {
-			await partialRepaymentTransaction({
+			await updateTransactionStatus({
 				transactionId: props.transactionId,
-				body: data
+				body: {
+					status: "requested_repay",
+					reviewAmount: data.amount
+				}
 			})
 				.then(response => {
 					if (response.data) {

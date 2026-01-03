@@ -35,7 +35,7 @@ interface DataTableRowActionsProps<TData> {
 
 export function DataTableRowActions<TData>({ row }: DataTableRowActionsProps<TData>) {
 	const dispatch = useAppDispatch();
-	const data = row.original as RequestsInterface;
+	const data = row.original as TransactionInterface;
 
 	const type = data.type;
 

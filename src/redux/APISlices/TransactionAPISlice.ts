@@ -3,7 +3,6 @@ import { createApi } from "@reduxjs/toolkit/query/react";
 import { baseQueryWithCSRF } from "@/lib/rtk-base-query";
 
 import { apiRoute } from "@/routes/routes";
-import { PartialRepayBorrowSchema } from "@/templates/Desktop/Borrow/Validation/Borrow.schema";
 import {
 	CreateRequestsSchema,
 	UpdatePendingRequestsSchema,
@@ -17,7 +16,7 @@ export const transactionApiSlice = createApi({
 	tagTypes: ["Transaction", "TransactionContacts", "TransactionContact"],
 	endpoints: builder => ({
 		transactionRequestsList: builder.query<
-			ApiResponse<RequestsInterface[]>,
+			ApiResponse<TransactionInterface[]>,
 			Partial<ApiSearchParams>
 		>({
 			query: params => ({
@@ -29,7 +28,7 @@ export const transactionApiSlice = createApi({
 		}),
 
 		createTransactionRequest: builder.mutation<
-			ApiResponse<RequestsInterface>,
+			ApiResponse<TransactionInterface>,
 			CreateRequestsSchema
 		>({
 			query: body => ({
@@ -40,16 +39,18 @@ export const transactionApiSlice = createApi({
 			invalidatesTags: ["Transaction"]
 		}),
 
-		getTransactionById: builder.query<ApiResponse<RequestsInterface>, { transactionId: string }>({
-			query: ({ transactionId }) => ({
-				url: apiRoute.transaction(transactionId),
-				method: "GET"
-			}),
-			providesTags: ["Transaction"]
-		}),
+		getTransactionById: builder.query<ApiResponse<TransactionInterface>, { transactionId: string }>(
+			{
+				query: ({ transactionId }) => ({
+					url: apiRoute.transaction(transactionId),
+					method: "GET"
+				}),
+				providesTags: ["Transaction"]
+			}
+		),
 
 		updateTransactionRequest: builder.mutation<
-			ApiResponse<RequestsInterface>,
+			ApiResponse<TransactionInterface>,
 			{ transactionId: string; body: UpdatePendingRequestsSchema }
 		>({
 			query: ({ transactionId, body }) => ({
@@ -61,7 +62,7 @@ export const transactionApiSlice = createApi({
 		}),
 
 		updateTransactionStatus: builder.mutation<
-			ApiResponse<RequestsInterface>,
+			ApiResponse<TransactionInterface>,
 			{ transactionId: string; body: ValidateUpdateStatusTransactionSchema }
 		>({
 			query: ({ transactionId, body }) => ({
@@ -84,38 +85,48 @@ export const transactionApiSlice = createApi({
 			invalidatesTags: ["Transaction"]
 		}),
 
-		transactionBorrowList: builder.query<ApiResponse<RequestsInterface[]>, void>({
+		transactionBorrowList: builder.query<ApiResponse<TransactionInterface[]>, void>({
 			query: () => ({
 				url: apiRoute.transactions,
 				method: "GET",
 				params: {
 					type: "borrow",
-					status: "accepted,partially_paid"
+					status: "accepted,partially_paid,requested_repay"
 				}
 			}),
 			providesTags: ["Transaction"]
 		}),
 
-		completeRepaymentTransaction: builder.mutation<
+		transactionLendList: builder.query<ApiResponse<TransactionInterface[]>, void>({
+			query: () => ({
+				url: apiRoute.transactions,
+				method: "GET",
+				params: {
+					type: "lend",
+					status: "accepted,partially_paid,requested_repay"
+				}
+			}),
+			providesTags: ["Transaction"]
+		}),
+
+		acceptRequestRepaymentTransaction: builder.mutation<
 			ApiResponse<string | null>,
-			{ transactionIds: string[] }
+			{ transactionId: string }
 		>({
-			query: body => ({
-				url: apiRoute.completeRepaymentTransaction,
-				method: "PUT",
-				body
+			query: ({ transactionId }) => ({
+				url: apiRoute.acceptRequestRepaymentTransaction(transactionId),
+				method: "PUT"
 			}),
 			invalidatesTags: ["Transaction"]
 		}),
 
-		partialRepaymentTransaction: builder.mutation<
+		rejectRequestRepaymentTransaction: builder.mutation<
 			ApiResponse<string | null>,
-			{ transactionId: string; body: PartialRepayBorrowSchema }
+			{ transactionId: string }
 		>({
-			query: ({ transactionId, body }) => ({
-				url: apiRoute.partialRepaymentTransaction(transactionId),
-				method: "PUT",
-				body
+			query: ({ transactionId }) => ({
+				url: apiRoute.rejectRequestRepaymentTransaction(transactionId),
+				method: "PUT"
 			}),
 			invalidatesTags: ["Transaction"]
 		})
@@ -131,9 +142,10 @@ export const {
 	useUpdateTransactionRequestMutation,
 	useDeleteTransactionRequestMutation,
 	useTransactionBorrowListQuery,
-	useCompleteRepaymentTransactionMutation,
-	usePartialRepaymentTransactionMutation,
-	useUpdateTransactionStatusMutation
+	useTransactionLendListQuery,
+	useUpdateTransactionStatusMutation,
+	useAcceptRequestRepaymentTransactionMutation,
+	useRejectRequestRepaymentTransactionMutation
 } = transactionApiSlice;
 
 export const transactionApiReducer = transactionApiSlice.reducer;

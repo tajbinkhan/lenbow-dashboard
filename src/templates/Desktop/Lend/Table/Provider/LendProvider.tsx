@@ -1,20 +1,17 @@
 import { useSearchParams } from "next/navigation";
-import { createContext, useEffect, useMemo, useState, useTransition } from "react";
+import { createContext, useEffect, useMemo, useState } from "react";
 import { DateRange } from "react-day-picker";
 import { toast } from "sonner";
 
 import { initialPagination } from "@/core/constants";
 import { useDebounce } from "@/hooks/use-debounce";
 import { usePathname, useRouter } from "@/i18n/navigation";
-import {
-	useDeleteTransactionRequestMutation,
-	useTransactionRequestsListQuery
-} from "@/redux/APISlices/TransactionAPISlice";
-import { initialRequestsApiSearchParams } from "@/templates/Desktop/Requests/Table/Data/data";
+import { useTransactionLendListQuery } from "@/redux/APISlices/TransactionAPISlice";
+import { initialLendApiSearchParams } from "@/templates/Desktop/Lend/Table/Data/data";
 
 // ✅ adjust path if needed
 
-interface RequestsContextType {
+interface LendContextType {
 	// Required States & Functions
 	id: string | null;
 	setId: React.Dispatch<React.SetStateAction<string | null>>;
@@ -27,14 +24,12 @@ interface RequestsContextType {
 	isLoading: boolean;
 	selectedDateRange: DateRange;
 	pagination: Pagination;
-	apiSearchParams: RequestsApiSearchParams;
-	setApiSearchParams: React.Dispatch<React.SetStateAction<RequestsApiSearchParams>>;
+	apiSearchParams: LendApiSearchParams;
+	setApiSearchParams: React.Dispatch<React.SetStateAction<LendApiSearchParams>>;
 	search: string;
 	setSearch: React.Dispatch<React.SetStateAction<string>>;
 	selectedGlobalValues: GlobalValues | undefined;
 	searchParams: URLSearchParams;
-	isDeleting: boolean;
-	handleDeleteSelected: () => void;
 	handleDateFilter: (date: DateRange) => void;
 	tableData: TransactionInterface[];
 	handleSearch: (event: React.FormEvent<HTMLFormElement>) => void;
@@ -45,49 +40,44 @@ interface RequestsContextType {
 	isFetching: boolean;
 
 	// Additional States & Functions
-	isRequestsCreateModalOpen: boolean;
-	setIsRequestsCreateModalOpen: React.Dispatch<React.SetStateAction<boolean>>;
+	isLendCreateModalOpen: boolean;
+	setIsLendCreateModalOpen: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-export const RequestsContext = createContext<RequestsContextType | undefined>(undefined);
+export const LendContext = createContext<LendContextType | undefined>(undefined);
 
-export default function RequestsProvider({ children }: GlobalLayoutProps) {
+export default function LendProvider({ children }: GlobalLayoutProps) {
 	const [id, setId] = useState<string | null>(null);
 	const [selectedIds, setSelectedIds] = useState<string[]>([]);
-
-	// Transitions
-	const [isDeleting, startDelete] = useTransition();
 
 	// Search Params
 	const searchParams = useSearchParams();
 
 	// Initialize API Search Params if there are search params
-	const initializeApiSearchParams: RequestsApiSearchParams = {
-		page: Number(searchParams.get("page")) || initialRequestsApiSearchParams.page,
-		limit: Number(searchParams.get("limit")) || initialRequestsApiSearchParams.limit,
-		sortBy: searchParams.get("sortBy") || initialRequestsApiSearchParams.sortBy,
+	const initializeApiSearchParams: LendApiSearchParams = {
+		page: Number(searchParams.get("page")) || initialLendApiSearchParams.page,
+		limit: Number(searchParams.get("limit")) || initialLendApiSearchParams.limit,
+		sortBy: searchParams.get("sortBy") || initialLendApiSearchParams.sortBy,
 		sortOrder:
-			(searchParams.get("sortOrder") as "asc" | "desc") || initialRequestsApiSearchParams.sortOrder,
-		search: searchParams.get("search") || initialRequestsApiSearchParams.search,
+			(searchParams.get("sortOrder") as "asc" | "desc") || initialLendApiSearchParams.sortOrder,
+		search: searchParams.get("search") || initialLendApiSearchParams.search,
 		from: searchParams.get("from") ? new Date(searchParams.get("from")!) : undefined,
 		to: searchParams.get("to") ? new Date(searchParams.get("to")!) : undefined,
-		type: searchParams.get("type") || initialRequestsApiSearchParams.type
+		type: searchParams.get("type") || initialLendApiSearchParams.type
 		// status: "pending"
 	};
 
 	// API Search Params
 	const [apiSearchParams, setApiSearchParams] =
-		useState<RequestsApiSearchParams>(initializeApiSearchParams);
+		useState<LendApiSearchParams>(initializeApiSearchParams);
 
 	// Pass apiSearchParams to the query hook to enable filtering
 	const {
-		data: transactionRequestsResponse,
+		data: transactionLendResponse,
 		isLoading,
 		refetch,
 		isFetching
-	} = useTransactionRequestsListQuery(apiSearchParams);
-
-	const [deleteTransactionRequest] = useDeleteTransactionRequestMutation();
+	} = useTransactionLendListQuery();
 
 	// Router & Pathname
 	const router = useRouter();
@@ -107,10 +97,10 @@ export default function RequestsProvider({ children }: GlobalLayoutProps) {
 	});
 
 	// Additional States & Functions
-	const [isRequestsCreateModalOpen, setIsRequestsCreateModalOpen] = useState(false);
+	const [isLendCreateModalOpen, setIsLendCreateModalOpen] = useState(false);
 
-	const tableData = transactionRequestsResponse?.data || [];
-	const pagination = transactionRequestsResponse?.pagination || initialPagination;
+	const tableData = transactionLendResponse?.data || [];
+	const pagination = transactionLendResponse?.pagination || initialPagination;
 
 	/**
 	 * Derives selectedGlobalValues from search parameters (excluding pagination and sorting params).
@@ -336,12 +326,12 @@ export default function RequestsProvider({ children }: GlobalLayoutProps) {
 		};
 
 		setApiSearchParams({
-			...initialRequestsApiSearchParams,
-			page: Number(preservedParams.page) || initialRequestsApiSearchParams.page,
-			limit: Number(preservedParams.limit) || initialRequestsApiSearchParams.limit,
+			...initialLendApiSearchParams,
+			page: Number(preservedParams.page) || initialLendApiSearchParams.page,
+			limit: Number(preservedParams.limit) || initialLendApiSearchParams.limit,
 			sortBy: preservedParams.sortBy || "id",
 			sortOrder:
-				(preservedParams.sortOrder as "asc" | "desc") || initialRequestsApiSearchParams.sortOrder,
+				(preservedParams.sortOrder as "asc" | "desc") || initialLendApiSearchParams.sortOrder,
 			search: "" // ✅ clear search in API params too
 		});
 
@@ -353,21 +343,6 @@ export default function RequestsProvider({ children }: GlobalLayoutProps) {
 		router.replace(`${pathname}?${newParams.toString()}`, { scroll: false });
 	};
 
-	/**
-	 * Handles the deletion of selected data.
-	 */
-	const handleDeleteSelected = () => {
-		startDelete(async () => {
-			try {
-				await deleteTransactionRequest({ transactionIds: selectedIds }).unwrap();
-				toast.success("Successfully deleted selected data");
-				setSelectedIds([]);
-			} catch (error) {
-				toast.error("Failed to delete selected data");
-			}
-		});
-	};
-
 	const handleRefresh = () => {
 		return toast.promise(refetch().unwrap(), {
 			loading: "Refreshing data...",
@@ -377,7 +352,7 @@ export default function RequestsProvider({ children }: GlobalLayoutProps) {
 	};
 
 	return (
-		<RequestsContext.Provider
+		<LendContext.Provider
 			value={{
 				id,
 				setId,
@@ -395,8 +370,6 @@ export default function RequestsProvider({ children }: GlobalLayoutProps) {
 				search,
 				setSearch,
 				selectedGlobalValues,
-				isDeleting,
-				handleDeleteSelected,
 				handleDateFilter,
 				tableData,
 				searchParams,
@@ -408,11 +381,11 @@ export default function RequestsProvider({ children }: GlobalLayoutProps) {
 				isFetching,
 
 				// Additional States & Functions
-				isRequestsCreateModalOpen,
-				setIsRequestsCreateModalOpen
+				isLendCreateModalOpen,
+				setIsLendCreateModalOpen
 			}}
 		>
 			{children}
-		</RequestsContext.Provider>
+		</LendContext.Provider>
 	);
 }

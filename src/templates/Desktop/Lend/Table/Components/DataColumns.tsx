@@ -2,84 +2,32 @@
 
 import { ColumnDef } from "@tanstack/react-table";
 
-import { ExtendedBadge, type ExtendedVariant } from "@/components/custom-ui/extended-badge";
+import { ExtendedBadge } from "@/components/custom-ui/extended-badge";
 import { DataTable } from "@/components/table/data-table";
 import { DataTableColumnHeader } from "@/components/table/data-table-column-header";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Checkbox } from "@/components/ui/checkbox";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 
 import useAuth from "@/hooks/use-auth";
-import { DataTableRowActions } from "@/templates/Desktop/Requests/Table/Components/DataTableRowActions";
-import { DataTableToolbar } from "@/templates/Desktop/Requests/Table/Components/DataTableToolbar";
-import { useRequests } from "@/templates/Desktop/Requests/Table/Hook/useRequests";
+import { DataTableRowActions } from "@/templates/Desktop/Lend/Table/Components/DataTableRowActions";
+import { DataTableToolbar } from "@/templates/Desktop/Lend/Table/Components/DataTableToolbar";
+import { useLend } from "@/templates/Desktop/Lend/Table/Hook/useLend";
 
 export default function DataColumns() {
 	const {
 		isLoading,
 		selectedIds,
-		setSelectedIds,
 		sortBy,
 		sortOrder,
 		handleSorting,
 		handleOptionFilter,
 		pagination,
 		tableData
-	} = useRequests();
+	} = useLend();
 
 	const { user } = useAuth();
 
 	const columns: ColumnDef<TransactionInterface>[] = [
-		{
-			id: "select",
-			header: ({ table }) => {
-				const handleSelection = (value: boolean) => {
-					table.toggleAllPageRowsSelected(value);
-
-					// Update selectedIds based on the new selection state
-					if (value) {
-						const selectedIds = table.getRowModel().rows.map(row => row.original.id);
-						setSelectedIds(selectedIds);
-					} else {
-						setSelectedIds([]);
-					}
-				};
-
-				return (
-					<Checkbox
-						checked={
-							table.getIsAllPageRowsSelected() ||
-							(table.getIsSomePageRowsSelected() && "indeterminate")
-						}
-						onCheckedChange={value => handleSelection(!!value)}
-						aria-label="Select all"
-						className="translate-y-0.5 rounded"
-					/>
-				);
-			},
-			cell: ({ row }) => {
-				const handleSelection = (value: boolean) => {
-					row.toggleSelected(value);
-					setSelectedIds(prev => {
-						const newSelectedIds = value
-							? [...prev, row.original.id]
-							: prev.filter(id => id !== row.original.id);
-
-						return newSelectedIds;
-					});
-				};
-
-				return (
-					<Checkbox
-						checked={row.getIsSelected() || selectedIds.includes(row.original.id)}
-						onCheckedChange={value => handleSelection(!!value)}
-						aria-label="Select row"
-						className="translate-y-0.5 rounded"
-					/>
-				);
-			},
-			enableSorting: false,
-			enableHiding: false
-		},
 		{
 			accessorKey: "name",
 			header: ({ column }) => (
@@ -93,14 +41,14 @@ export default function DataColumns() {
 			),
 			cell: ({ row }) => {
 				const image =
-					user && user.id === row.original.borrower.id
+					user && user.id === row.original.lender.id
 						? row.original.lender.image
-						: row.original.borrower.image;
+						: row.original.lender.image;
 
 				const userName =
-					user && user.id === row.original.borrower.id
+					user && user.id === row.original.lender.id
 						? row.original.lender.name || row.original.lender.email
-						: row.original.borrower.name || row.original.borrower.email;
+						: row.original.lender.name || row.original.lender.email;
 
 				return (
 					<div className="flex items-center gap-2">
@@ -132,33 +80,12 @@ export default function DataColumns() {
 			),
 			cell: ({ row }) => {
 				const email =
-					user && user.id === row.original.borrower.id
+					user && user.id === row.original.lender.id
 						? row.original.lender.email
-						: row.original.borrower.email;
+						: row.original.lender.email;
 
 				return <span>{email}</span>;
 			}
-		},
-		{
-			accessorKey: "type",
-			header: ({ column }) => (
-				<DataTableColumnHeader
-					column={column}
-					sortBy={sortBy}
-					sortOrder={sortOrder}
-					handleSorting={handleSorting}
-					title="Type"
-				/>
-			),
-			cell: ({ row }) => {
-				const variant: ExtendedVariant = row.original.type === "lend" ? "cyan" : "destructive";
-				return (
-					<ExtendedBadge variant={variant}>
-						{row.original.type.charAt(0).toUpperCase() + row.original.type.slice(1)}
-					</ExtendedBadge>
-				);
-			},
-			enableSorting: false
 		},
 		{
 			accessorKey: "amount",
@@ -174,6 +101,60 @@ export default function DataColumns() {
 			cell: ({ row }) => row.original.amount
 		},
 		{
+			accessorKey: "remainingAmount",
+			header: ({ column }) => (
+				<DataTableColumnHeader
+					column={column}
+					sortBy={sortBy}
+					sortOrder={sortOrder}
+					handleSorting={handleSorting}
+					title="Remaining Amount"
+				/>
+			),
+			cell: ({ row }) => row.original.remainingAmount
+		},
+		{
+			accessorKey: "amountPaid",
+			header: ({ column }) => (
+				<DataTableColumnHeader
+					column={column}
+					sortBy={sortBy}
+					sortOrder={sortOrder}
+					handleSorting={handleSorting}
+					title="Amount Paid"
+				/>
+			),
+			cell: ({ row }) => row.original.amountPaid
+		},
+		{
+			accessorKey: "reviewAmount",
+			header: ({ column }) => (
+				<DataTableColumnHeader
+					column={column}
+					sortBy={sortBy}
+					sortOrder={sortOrder}
+					handleSorting={handleSorting}
+					title="Review Amount"
+				/>
+			),
+			cell: ({ row }) => {
+				if (row.original.reviewAmount > 0) {
+					return (
+						<Tooltip>
+							<TooltipTrigger asChild>
+								<ExtendedBadge variant="purple">{row.original.reviewAmount}</ExtendedBadge>
+							</TooltipTrigger>
+							<TooltipContent>
+								<p>
+									This is the requested amount under review. Please verify the transaction details.
+								</p>
+							</TooltipContent>
+						</Tooltip>
+					);
+				} else return <span>{row.original.reviewAmount}</span>;
+			}
+		},
+		{
 			accessorKey: "status",
 			header: ({ column }) => (
 				<DataTableColumnHeader
@@ -186,11 +167,28 @@ export default function DataColumns() {
 			),
 			cell: ({ row }) => {
 				const status = row.original.status;
-				return (
-					<ExtendedBadge variant={"warning"}>
-						{status.charAt(0).toUpperCase() + status.slice(1)}
-					</ExtendedBadge>
-				);
+
+				// Format status text: replace underscores with spaces and capitalize each word
+				const formattedStatus = status
+					.split("_")
+					.map(word => word.charAt(0).toUpperCase() + word.slice(1))
+					.join(" ");
+
+				// Determine badge variant based on status
+				const getStatusVariant = (status: string) => {
+					switch (status.toLowerCase()) {
+						case "partially_paid":
+							return "orange";
+						case "completed":
+							return "success";
+						case "requested_repay":
+							return "destructive";
+						default:
+							return "default";
+					}
+				};
+
+				return <ExtendedBadge variant={getStatusVariant(status)}>{formattedStatus}</ExtendedBadge>;
 			},
 			enableSorting: false
 		},
