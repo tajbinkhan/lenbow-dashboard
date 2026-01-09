@@ -32,6 +32,7 @@ export const apiRoute = {
 		`/transactions/${transactionId}/repayment/accept`,
 	rejectRequestRepaymentTransaction: (transactionId: string) =>
 		`/transactions/${transactionId}/repayment/reject`,
+	contacts: "/contacts",
 	contact: (userId: string) => `/contacts/${userId}`,
 	connectedContacts: "/contacts/connected"
 } as const;

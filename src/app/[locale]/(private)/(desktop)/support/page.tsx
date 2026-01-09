@@ -1,17 +1,18 @@
+import ComingSoon from "@/components/helpers/coming-soon";
+
 import { SetBreadcrumb } from "@/providers/BreadcrumbProvider";
 import { route } from "@/routes/routes";
-import PeopleTemplate from "@/templates/Desktop/People/PeopleTemplate";
 
-export default function People() {
+export default function Support() {
 	return (
 		<>
 			<SetBreadcrumb
 				items={[
 					{ name: "Dashboard", href: route.private.dashboard },
-					{ name: "People", isCurrent: true }
+					{ name: "Support", isCurrent: true }
 				]}
 			/>
-			<PeopleTemplate />
+			<ComingSoon />
 		</>
 	);
 }

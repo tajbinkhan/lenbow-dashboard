@@ -14,8 +14,8 @@ import {
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 
 import {
-	ConnectedContactList,
-	useConnectedContactsListQuery,
+	ConnectedContact,
+	useConnectedContactsQuery,
 	useLazyGetContactByIdQuery
 } from "@/redux/APISlices/ContactAPISlice";
 import { validateUUID } from "@/validators/commonRule";
@@ -36,12 +36,12 @@ export default function FetchConnectedContactList({
 	const [open, setOpen] = useState(false);
 	const [search, setSearch] = useState("");
 
-	const { isLoading, data } = useConnectedContactsListQuery();
+	const { isLoading, data } = useConnectedContactsQuery();
 
 	const [newContact, { isLoading: isContactLoading, data: contactData }] =
 		useLazyGetContactByIdQuery();
 
-	const users: ConnectedContactList[] = useMemo(() => data?.data || [], [data?.data]);
+	const users: ConnectedContact[] = useMemo(() => data?.data || [], [data?.data]);
 
 	// Check if search has local matches
 	const hasLocalMatch = useMemo(
@@ -83,7 +83,7 @@ export default function FetchConnectedContactList({
 
 	// Combine connected contacts with searched contact if found
 	const searchedContact = contactData?.data;
-	const combinedUsers: ConnectedContactList[] = searchedContact
+	const combinedUsers: ConnectedContact[] = searchedContact
 		? [...users, searchedContact].filter(
 				(user, index, self) => self.findIndex(u => u.userId === user.userId) === index
 			)

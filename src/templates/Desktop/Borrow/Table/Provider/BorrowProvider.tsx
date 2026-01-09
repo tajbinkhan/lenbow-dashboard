@@ -77,7 +77,7 @@ export default function BorrowProvider({ children }: GlobalLayoutProps) {
 		isLoading,
 		refetch,
 		isFetching
-	} = useTransactionBorrowListQuery();
+	} = useTransactionBorrowListQuery(apiSearchParams);
 
 	// Router & Pathname
 	const router = useRouter();

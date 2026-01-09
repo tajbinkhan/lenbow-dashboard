@@ -4,7 +4,7 @@ import { baseQueryWithCSRF } from "@/lib/rtk-base-query";
 
 import { apiRoute } from "@/routes/routes";
 
-export interface ConnectedContactList {
+export interface ConnectedContact {
 	userId: string;
 	name: string | null;
 	email: string;
@@ -19,7 +19,7 @@ export const contactApiSlice = createApi({
 	baseQuery: baseQueryWithCSRF,
 	tagTypes: ["Contact"],
 	endpoints: builder => ({
-		getContactById: builder.query<ApiResponse<ConnectedContactList>, { contactId: string }>({
+		getContactById: builder.query<ApiResponse<ConnectedContact>, { contactId: string }>({
 			query: ({ contactId }) => ({
 				url: apiRoute.contact(contactId),
 				method: "GET"
@@ -27,10 +27,19 @@ export const contactApiSlice = createApi({
 			providesTags: ["Contact"]
 		}),
 
-		connectedContactsList: builder.query<ApiResponse<ConnectedContactList[]>, void>({
+		connectedContacts: builder.query<ApiResponse<ConnectedContact[]>, void>({
 			query: () => ({
 				url: apiRoute.connectedContacts,
 				method: "GET"
+			}),
+			providesTags: ["Contact"]
+		}),
+
+		connectedContactList: builder.query<ApiResponse<PeopleInterface[]>, Partial<ApiSearchParams>>({
+			query: params => ({
+				url: apiRoute.contacts,
+				method: "GET",
+				params
 			}),
 			providesTags: ["Contact"]
 		})
@@ -38,7 +47,11 @@ export const contactApiSlice = createApi({
 });
 
 // Export hooks
-export const { useGetContactByIdQuery, useLazyGetContactByIdQuery, useConnectedContactsListQuery } =
-	contactApiSlice;
+export const {
+	useGetContactByIdQuery,
+	useLazyGetContactByIdQuery,
+	useConnectedContactsQuery,
+	useConnectedContactListQuery
+} = contactApiSlice;
 
 export const contactApiReducer = contactApiSlice.reducer;

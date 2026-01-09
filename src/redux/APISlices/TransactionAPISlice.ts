@@ -85,11 +85,15 @@ export const transactionApiSlice = createApi({
 			invalidatesTags: ["Transaction"]
 		}),
 
-		transactionBorrowList: builder.query<ApiResponse<TransactionInterface[]>, void>({
-			query: () => ({
+		transactionBorrowList: builder.query<
+			ApiResponse<TransactionInterface[]>,
+			Partial<ApiSearchParams>
+		>({
+			query: params => ({
 				url: apiRoute.transactions,
 				method: "GET",
 				params: {
+					...params,
 					type: "borrow",
 					status: "accepted,partially_paid,requested_repay"
 				}
@@ -97,11 +101,15 @@ export const transactionApiSlice = createApi({
 			providesTags: ["Transaction"]
 		}),
 
-		transactionLendList: builder.query<ApiResponse<TransactionInterface[]>, void>({
-			query: () => ({
+		transactionLendList: builder.query<
+			ApiResponse<TransactionInterface[]>,
+			Partial<ApiSearchParams>
+		>({
+			query: params => ({
 				url: apiRoute.transactions,
 				method: "GET",
 				params: {
+					...params,
 					type: "lend",
 					status: "accepted,partially_paid,requested_repay"
 				}
