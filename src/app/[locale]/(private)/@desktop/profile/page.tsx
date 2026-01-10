@@ -1,7 +1,6 @@
-import ComingSoon from "@/components/helpers/coming-soon";
-
 import { SetBreadcrumb } from "@/providers/BreadcrumbProvider";
 import { route } from "@/routes/routes";
+import ProfileTemplate from "@/templates/Authentication/Profile/ProfileTemplate";
 
 export default function Profile() {
 	return (
@@ -12,7 +11,7 @@ export default function Profile() {
 					{ name: "Profile", isCurrent: true }
 				]}
 			/>
-			<ComingSoon />
+			<ProfileTemplate />
 		</>
 	);
 }

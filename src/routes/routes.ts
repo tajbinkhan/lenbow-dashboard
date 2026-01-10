@@ -23,6 +23,10 @@ export const apiRoute = {
 	googleLogin: "/auth/google",
 	me: "/auth/me",
 	logout: "/auth/logout",
+	updateProfile: "/auth/profile",
+	changePassword: "/auth/change-password",
+	toggle2FA: "/auth/2fa",
+	deleteAccount: "/auth/account",
 	transactions: "/transactions",
 	transaction: (transactionId: string) => `/transactions/${transactionId}`,
 	requestedTransactions: "/transactions/requested",
@@ -41,4 +45,4 @@ const DEFAULT_LOGIN_REDIRECT = route.private.dashboard;
 
 const appRoutePrefix = process.env.NEXT_PUBLIC_FRONTEND_URL;
 
-export { appRoutePrefix, DEFAULT_LOGIN_REDIRECT };
+export { DEFAULT_LOGIN_REDIRECT, appRoutePrefix };
