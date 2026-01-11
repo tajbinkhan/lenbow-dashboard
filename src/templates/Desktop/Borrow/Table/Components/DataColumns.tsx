@@ -40,29 +40,22 @@ export default function DataColumns() {
 				/>
 			),
 			cell: ({ row }) => {
-				const image =
-					user && user.id === row.original.borrower.id
-						? row.original.lender.image
-						: row.original.borrower.image;
-
-				const userName =
-					user && user.id === row.original.borrower.id
-						? row.original.lender.name || row.original.lender.email
-						: row.original.borrower.name || row.original.borrower.email;
+				const image = row.original.lender.image;
+				const name = row.original.lender.name;
 
 				return (
 					<div className="flex items-center gap-2">
 						<Avatar>
 							<AvatarImage
 								src={image || undefined}
-								alt={userName}
+								alt={name || "Unknown"}
 								width={40}
 								height={40}
 								className="rounded-full"
 							/>
-							<AvatarFallback>{userName?.slice(0, 2)}</AvatarFallback>
+							<AvatarFallback>{name ? name.slice(0, 2) : "Unknown"}</AvatarFallback>
 						</Avatar>
-						<span className="max-w-32 truncate">{userName || "Unknown"}</span>
+						<span className="max-w-32 truncate">{name || "Unknown"}</span>
 					</div>
 				);
 			}
@@ -78,14 +71,7 @@ export default function DataColumns() {
 					title="Email"
 				/>
 			),
-			cell: ({ row }) => {
-				const email =
-					user && user.id === row.original.borrower.id
-						? row.original.lender.email
-						: row.original.borrower.email;
-
-				return <span>{email}</span>;
-			}
+			cell: ({ row }) => row.original.borrower.email
 		},
 		{
 			accessorKey: "amount",
