@@ -27,7 +27,9 @@ const extendedBadgeVariants = cva("", {
 			orange:
 				"bg-orange-500/10 [a]:hover:bg-orange-500/20 focus-visible:ring-orange-500/20 dark:focus-visible:ring-orange-500/40 text-orange-700 dark:text-orange-400 dark:bg-orange-500/20 border-transparent",
 			teal: "bg-teal-500/10 [a]:hover:bg-teal-500/20 focus-visible:ring-teal-500/20 dark:focus-visible:ring-teal-500/40 text-teal-700 dark:text-teal-400 dark:bg-teal-500/20 border-transparent",
-			cyan: "bg-cyan-500/10 [a]:hover:bg-cyan-500/20 focus-visible:ring-cyan-500/20 dark:focus-visible:ring-cyan-500/40 text-cyan-700 dark:text-cyan-400 dark:bg-cyan-500/20 border-transparent"
+			cyan: "bg-cyan-500/10 [a]:hover:bg-cyan-500/20 focus-visible:ring-cyan-500/20 dark:focus-visible:ring-cyan-500/40 text-cyan-700 dark:text-cyan-400 dark:bg-cyan-500/20 border-transparent",
+			emerald:
+				"bg-emerald-500/10 [a]:hover:bg-emerald-500/20 focus-visible:ring-emerald-500/20 dark:focus-visible:ring-emerald-500/40 text-emerald-700 dark:text-emerald-400 dark:bg-emerald-500/20 border-transparent"
 		}
 	},
 	defaultVariants: {
@@ -53,7 +55,8 @@ function ExtendedBadge({
 		"pink",
 		"orange",
 		"teal",
-		"cyan"
+		"cyan",
+		"emerald"
 	].includes(variant as string);
 
 	if (isExtendedVariant) {
