@@ -22,6 +22,7 @@ import {
 	RejectRequestsSchema,
 	rejectRequestsSchema
 } from "@/templates/Desktop/Requests/Validation/Requests.schema";
+import { useRequests } from "@/templates/Mobile/Requests/Hook/useRequests";
 
 interface RequestsRejectModalProps {
 	transactionId: string;
@@ -38,6 +39,7 @@ export default function RequestsRejectModal(props: RequestsRejectModalProps) {
 	});
 
 	const [updateTransactionStatus, { isLoading }] = useUpdateTransactionStatusMutation();
+	const { setActiveTransaction } = useRequests();
 
 	const onSubmit = async (data: RejectRequestsSchema) => {
 		try {
@@ -52,6 +54,7 @@ export default function RequestsRejectModal(props: RequestsRejectModalProps) {
 					if (response.data) {
 						form.reset();
 						props.setIsRejectModalOpen(false);
+						setActiveTransaction(null); // Close the transaction details drawer
 						toast.success("You have successfully rejected the loan request.");
 					} else {
 						toast.error("Failed to reject loan request. Please try again.");

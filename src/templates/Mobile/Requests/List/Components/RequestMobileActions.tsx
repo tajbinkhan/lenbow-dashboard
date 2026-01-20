@@ -26,6 +26,7 @@ import {
 import { useAppDispatch } from "@/redux/hooks";
 import RequestsRejectModal from "@/templates/Mobile/Requests/Form/RequestsRejectModal";
 import RequestsUpdateModel from "@/templates/Mobile/Requests/Form/RequestsUpdateModel";
+import { useRequests } from "@/templates/Mobile/Requests/Hook/useRequests";
 
 interface RequestMobileActionsProps {
 	data: TransactionInterface;
@@ -34,6 +35,7 @@ interface RequestMobileActionsProps {
 
 export function RequestMobileActions({ data, showFullButtons = false }: RequestMobileActionsProps) {
 	const dispatch = useAppDispatch();
+	const { setActiveTransaction } = useRequests();
 	const type = data.type;
 
 	const [isPending, startTransition] = useTransition();
@@ -58,6 +60,7 @@ export function RequestMobileActions({ data, showFullButtons = false }: RequestM
 						toast.success(res.message);
 					}
 					setIsOpenDeleteModal(false);
+					setActiveTransaction(null); // Close the transaction details drawer
 					dispatch(transactionApiSlice.util.invalidateTags([{ type: "Transaction" }]));
 				})
 				.catch(error => {
@@ -74,6 +77,7 @@ export function RequestMobileActions({ data, showFullButtons = false }: RequestM
 				.then(res => {
 					toast.success(res.message);
 					setIsOpenApproveModal(false);
+					setActiveTransaction(null); // Close the transaction details drawer
 					dispatch(transactionApiSlice.util.invalidateTags([{ type: "Transaction" }]));
 				})
 				.catch(error => {
