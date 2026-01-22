@@ -8,7 +8,6 @@ import { DataTableColumnHeader } from "@/components/table/data-table-column-head
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 
-import useAuth from "@/hooks/use-auth";
 import { DataTableRowActions } from "@/templates/Desktop/Borrow/Table/Components/DataTableRowActions";
 import { DataTableToolbar } from "@/templates/Desktop/Borrow/Table/Components/DataTableToolbar";
 import { useBorrow } from "@/templates/Desktop/Borrow/Table/Hook/useBorrow";
@@ -24,8 +23,6 @@ export default function DataColumns() {
 		pagination,
 		tableData
 	} = useBorrow();
-
-	const { user } = useAuth();
 
 	const columns: ColumnDef<TransactionInterface>[] = [
 		{
@@ -71,7 +68,7 @@ export default function DataColumns() {
 					title="Email"
 				/>
 			),
-			cell: ({ row }) => row.original.borrower.email
+			cell: ({ row }) => row.original.lender.email
 		},
 		{
 			accessorKey: "amount",
