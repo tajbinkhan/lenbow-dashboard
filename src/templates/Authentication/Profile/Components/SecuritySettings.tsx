@@ -82,7 +82,7 @@ export default function SecuritySettings({ user, onDeleteAccount }: SecuritySett
 							<p className="text-muted-foreground text-sm">Update your default currency</p>
 						</div>
 					</div>
-					<div className="max-w-28">
+					<div className="max-w-40">
 						<Controller
 							name="currency"
 							control={form.control}

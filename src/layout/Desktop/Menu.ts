@@ -1,9 +1,7 @@
 import {
-	Bell,
 	Coins,
 	FileText,
 	Hand,
-	HelpCircle,
 	History,
 	LayoutDashboard,
 	Settings,
@@ -53,17 +51,17 @@ const navSupportingItem: NavItemProps[] = [
 		title: "People",
 		url: route.private.people,
 		icon: Users
-	},
-	{
-		title: "Notifications",
-		url: route.private.notifications,
-		icon: Bell
-	},
-	{
-		title: "Support",
-		url: route.private.support,
-		icon: HelpCircle
 	}
+	// {
+	// 	title: "Notifications",
+	// 	url: route.private.notifications,
+	// 	icon: Bell
+	// },
+	// {
+	// 	title: "Support",
+	// 	url: route.private.support,
+	// 	icon: HelpCircle
+	// }
 ];
 
 export { navItem, navSupportingItem, userItems };
