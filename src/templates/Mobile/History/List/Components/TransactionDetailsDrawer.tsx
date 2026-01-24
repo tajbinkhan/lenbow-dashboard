@@ -13,7 +13,6 @@ import {
 	DrawerHeader,
 	DrawerTitle
 } from "@/components/ui/drawer";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 
 import useAuth from "@/hooks/use-auth";
@@ -52,17 +51,17 @@ export function TransactionDetailsDrawer() {
 
 	return (
 		<Drawer open={isOpen} onOpenChange={handleOpenChange}>
-			<DrawerContent className="flex max-h-[85vh] flex-col">
-				<div className="mx-auto flex h-full w-full max-w-sm flex-col overflow-hidden">
-					<DrawerHeader className="flex-none pb-2 text-left">
+			<DrawerContent className="flex max-h-[90vh] flex-col">
+				<div className="mx-auto flex h-full w-full max-w-sm flex-col">
+					<DrawerHeader className="shrink-0 pb-2 text-left">
 						<div className="flex items-center justify-between">
 							<DrawerTitle className="text-xl">Transaction Details</DrawerTitle>
 						</div>
 						<DrawerDescription>View complete details of this transaction.</DrawerDescription>
 					</DrawerHeader>
 
-					<ScrollArea className="-mx-4 flex-1 overflow-y-auto px-4">
-						<div className="space-y-6 px-4 py-2">
+					<div className="mb-10 min-h-0 flex-1 overflow-y-auto px-4">
+						<div className="space-y-6 py-2 pb-6">
 							{/* Amount & Status Section */}
 							<div className="bg-muted/30 border-border/50 flex flex-col items-center justify-center space-y-2 rounded-xl border py-4">
 								<span className="text-muted-foreground text-sm font-medium tracking-wide uppercase">
@@ -149,7 +148,7 @@ export function TransactionDetailsDrawer() {
 								</div>
 							</div>
 						</div>
-					</ScrollArea>
+					</div>
 				</div>
 			</DrawerContent>
 		</Drawer>
