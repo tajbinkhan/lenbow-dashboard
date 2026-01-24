@@ -81,7 +81,7 @@ export default function DataColumns() {
 					title="Amount"
 				/>
 			),
-			cell: ({ row }) => row.original.amount
+			cell: ({ row }) => `${row.original.currency.symbol}${row.original.amount}`
 		},
 		{
 			accessorKey: "remainingAmount",
@@ -94,7 +94,7 @@ export default function DataColumns() {
 					title="Remaining Amount"
 				/>
 			),
-			cell: ({ row }) => row.original.remainingAmount
+			cell: ({ row }) => `${row.original.currency.symbol}${row.original.remainingAmount}`
 		},
 		{
 			accessorKey: "amountPaid",
@@ -107,7 +107,7 @@ export default function DataColumns() {
 					title="Amount Paid"
 				/>
 			),
-			cell: ({ row }) => row.original.amountPaid
+			cell: ({ row }) => `${row.original.currency.symbol}${row.original.amountPaid}`
 		},
 		{
 			accessorKey: "reviewAmount",
@@ -125,7 +125,7 @@ export default function DataColumns() {
 					return (
 						<Tooltip>
 							<TooltipTrigger asChild>
-								<ExtendedBadge variant="purple">{row.original.reviewAmount}</ExtendedBadge>
+								<ExtendedBadge variant="purple">{`${row.original.currency.symbol}${row.original.reviewAmount}`}</ExtendedBadge>
 							</TooltipTrigger>
 							<TooltipContent>
 								<p>
@@ -134,7 +134,7 @@ export default function DataColumns() {
 							</TooltipContent>
 						</Tooltip>
 					);
-				} else return <span>{row.original.reviewAmount}</span>;
+				} else return <span>{`${row.original.currency.symbol}${row.original.reviewAmount}`}</span>;
 			}
 		},
 		{

@@ -5,6 +5,10 @@ import { currencyApiReducer, currencyApiSlice } from "@/redux/APISlices/Currency
 import { overviewApiReducer, overviewApiSlice } from "@/redux/APISlices/OverviewAPISlice";
 import { transactionApiReducer, transactionApiSlice } from "@/redux/APISlices/TransactionAPISlice";
 import {
+	transactionHistoryApiReducer,
+	transactionHistoryApiSlice
+} from "@/redux/APISlices/TransactionHistoryAPISlice";
+import {
 	authenticationApiReducer,
 	authenticationApiSlice
 } from "@/templates/Authentication/Login/Redux/AuthenticationAPISlice";
@@ -18,7 +22,8 @@ export const makeStore = () => {
 			transactionApiReducer,
 			contactApiReducer,
 			currencyApiReducer,
-			overviewApiReducer
+			overviewApiReducer,
+			transactionHistoryApiReducer
 		},
 		middleware: getDefaultMiddleware =>
 			getDefaultMiddleware({
@@ -28,7 +33,8 @@ export const makeStore = () => {
 				transactionApiSlice.middleware,
 				contactApiSlice.middleware,
 				currencyApiSlice.middleware,
-				overviewApiSlice.middleware
+				overviewApiSlice.middleware,
+				transactionHistoryApiSlice.middleware
 			])
 	});
 };

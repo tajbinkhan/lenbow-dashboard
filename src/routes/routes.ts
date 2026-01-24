@@ -40,11 +40,12 @@ export const apiRoute = {
 	contacts: "/contacts",
 	contact: (userId: string) => `/contacts/${userId}`,
 	connectedContacts: "/contacts/connected",
-	overview: "/overview"
+	overview: "/overview",
+	transactionHistory: "/history/transactions"
 } as const;
 
 const DEFAULT_LOGIN_REDIRECT = route.private.dashboard;
 
 const appRoutePrefix = process.env.NEXT_PUBLIC_FRONTEND_URL;
 
-export { DEFAULT_LOGIN_REDIRECT, appRoutePrefix };
+export { appRoutePrefix, DEFAULT_LOGIN_REDIRECT };

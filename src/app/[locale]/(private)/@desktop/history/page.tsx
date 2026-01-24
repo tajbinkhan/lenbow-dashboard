@@ -1,7 +1,6 @@
-import ComingSoon from "@/components/helpers/coming-soon";
-
 import { SetBreadcrumb } from "@/providers/BreadcrumbProvider";
 import { route } from "@/routes/routes";
+import HistoryTemplate from "@/templates/Desktop/History/HistoryTemplate";
 
 export default function History() {
 	return (
@@ -12,7 +11,7 @@ export default function History() {
 					{ name: "History", isCurrent: true }
 				]}
 			/>
-			<ComingSoon />
+			<HistoryTemplate />
 		</>
 	);
 }

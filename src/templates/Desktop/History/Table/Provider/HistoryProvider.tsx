@@ -6,12 +6,12 @@ import { toast } from "sonner";
 import { initialPagination } from "@/core/constants";
 import { useDebounce } from "@/hooks/use-debounce";
 import { usePathname, useRouter } from "@/i18n/navigation";
-import { useTransactionLendListQuery } from "@/redux/APISlices/TransactionAPISlice";
-import { initialLendApiSearchParams } from "@/templates/Desktop/Lend/Table/Data/data";
+import { useGetTransactionHistoryQuery } from "@/redux/APISlices/TransactionHistoryAPISlice";
+import { initialHistoryApiSearchParams } from "@/templates/Desktop/History/Table/Data/data";
 
 // ✅ adjust path if needed
 
-interface LendContextType {
+interface HistoryContextType {
 	// Required States & Functions
 	id: string | null;
 	setId: React.Dispatch<React.SetStateAction<string | null>>;
@@ -24,14 +24,14 @@ interface LendContextType {
 	isLoading: boolean;
 	selectedDateRange: DateRange;
 	pagination: Pagination;
-	apiSearchParams: LendApiSearchParams;
-	setApiSearchParams: React.Dispatch<React.SetStateAction<LendApiSearchParams>>;
+	apiSearchParams: HistoryApiSearchParams;
+	setApiSearchParams: React.Dispatch<React.SetStateAction<HistoryApiSearchParams>>;
 	search: string;
 	setSearch: React.Dispatch<React.SetStateAction<string>>;
 	selectedGlobalValues: GlobalValues | undefined;
 	searchParams: URLSearchParams;
+	tableData: TransactionHistoryInterface[];
 	handleDateFilter: (date: DateRange) => void;
-	tableData: TransactionInterface[];
 	handleSearch: (event: React.FormEvent<HTMLFormElement>) => void;
 	handleSorting: (sortBy: string, sortOrder: "asc" | "desc") => void;
 	handleOptionFilter: (key: string, value: string | string[] | undefined | null) => void;
@@ -40,13 +40,13 @@ interface LendContextType {
 	isFetching: boolean;
 
 	// Additional States & Functions
-	isLendCreateModalOpen: boolean;
-	setIsLendCreateModalOpen: React.Dispatch<React.SetStateAction<boolean>>;
+	isHistoryCreateModalOpen: boolean;
+	setIsHistoryCreateModalOpen: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-export const LendContext = createContext<LendContextType | undefined>(undefined);
+export const HistoryContext = createContext<HistoryContextType | undefined>(undefined);
 
-export default function LendProvider({ children }: GlobalLayoutProps) {
+export default function HistoryProvider({ children }: GlobalLayoutProps) {
 	const [id, setId] = useState<string | null>(null);
 	const [selectedIds, setSelectedIds] = useState<string[]>([]);
 
@@ -54,30 +54,30 @@ export default function LendProvider({ children }: GlobalLayoutProps) {
 	const searchParams = useSearchParams();
 
 	// Initialize API Search Params if there are search params
-	const initializeApiSearchParams: LendApiSearchParams = {
-		page: Number(searchParams.get("page")) || initialLendApiSearchParams.page,
-		limit: Number(searchParams.get("limit")) || initialLendApiSearchParams.limit,
-		sortBy: searchParams.get("sortBy") || initialLendApiSearchParams.sortBy,
+	const initializeApiSearchParams: HistoryApiSearchParams = {
+		page: Number(searchParams.get("page")) || initialHistoryApiSearchParams.page,
+		limit: Number(searchParams.get("limit")) || initialHistoryApiSearchParams.limit,
+		sortBy: searchParams.get("sortBy") || initialHistoryApiSearchParams.sortBy,
 		sortOrder:
-			(searchParams.get("sortOrder") as "asc" | "desc") || initialLendApiSearchParams.sortOrder,
-		search: searchParams.get("search") || initialLendApiSearchParams.search,
+			(searchParams.get("sortOrder") as "asc" | "desc") || initialHistoryApiSearchParams.sortOrder,
+		search: searchParams.get("search") || initialHistoryApiSearchParams.search,
 		from: searchParams.get("from") ? new Date(searchParams.get("from")!) : undefined,
 		to: searchParams.get("to") ? new Date(searchParams.get("to")!) : undefined,
-		type: searchParams.get("type") || initialLendApiSearchParams.type
-		// status: "pending"
+		type: searchParams.get("type") || initialHistoryApiSearchParams.type,
+		status: searchParams.get("status") || initialHistoryApiSearchParams.status
 	};
 
 	// API Search Params
 	const [apiSearchParams, setApiSearchParams] =
-		useState<LendApiSearchParams>(initializeApiSearchParams);
+		useState<HistoryApiSearchParams>(initializeApiSearchParams);
 
 	// Pass apiSearchParams to the query hook to enable filtering
 	const {
-		data: transactionLendResponse,
+		data: transactionHistoryResponse,
 		isLoading,
 		refetch,
 		isFetching
-	} = useTransactionLendListQuery(apiSearchParams);
+	} = useGetTransactionHistoryQuery(apiSearchParams);
 
 	// Router & Pathname
 	const router = useRouter();
@@ -97,10 +97,10 @@ export default function LendProvider({ children }: GlobalLayoutProps) {
 	});
 
 	// Additional States & Functions
-	const [isLendCreateModalOpen, setIsLendCreateModalOpen] = useState(false);
+	const [isHistoryCreateModalOpen, setIsHistoryCreateModalOpen] = useState(false);
 
-	const tableData = transactionLendResponse?.data || [];
-	const pagination = transactionLendResponse?.pagination || initialPagination;
+	const tableData = transactionHistoryResponse?.data || [];
+	const pagination = transactionHistoryResponse?.pagination || initialPagination;
 
 	/**
 	 * Derives selectedGlobalValues from search parameters (excluding pagination and sorting params).
@@ -332,12 +332,12 @@ export default function LendProvider({ children }: GlobalLayoutProps) {
 		};
 
 		setApiSearchParams({
-			...initialLendApiSearchParams,
-			page: Number(preservedParams.page) || initialLendApiSearchParams.page,
-			limit: Number(preservedParams.limit) || initialLendApiSearchParams.limit,
+			...initialHistoryApiSearchParams,
+			page: Number(preservedParams.page) || initialHistoryApiSearchParams.page,
+			limit: Number(preservedParams.limit) || initialHistoryApiSearchParams.limit,
 			sortBy: preservedParams.sortBy || "id",
 			sortOrder:
-				(preservedParams.sortOrder as "asc" | "desc") || initialLendApiSearchParams.sortOrder,
+				(preservedParams.sortOrder as "asc" | "desc") || initialHistoryApiSearchParams.sortOrder,
 			search: "" // ✅ clear search in API params too
 		});
 
@@ -358,7 +358,7 @@ export default function LendProvider({ children }: GlobalLayoutProps) {
 	};
 
 	return (
-		<LendContext.Provider
+		<HistoryContext.Provider
 			value={{
 				id,
 				setId,
@@ -387,11 +387,11 @@ export default function LendProvider({ children }: GlobalLayoutProps) {
 				isFetching,
 
 				// Additional States & Functions
-				isLendCreateModalOpen,
-				setIsLendCreateModalOpen
+				isHistoryCreateModalOpen,
+				setIsHistoryCreateModalOpen
 			}}
 		>
 			{children}
-		</LendContext.Provider>
+		</HistoryContext.Provider>
 	);
 }

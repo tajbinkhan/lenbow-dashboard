@@ -2,16 +2,14 @@
 
 import { ColumnDef } from "@tanstack/react-table";
 
-import { ExtendedBadge } from "@/components/custom-ui/extended-badge";
+import { ExtendedBadge, type ExtendedVariant } from "@/components/custom-ui/extended-badge";
 import { DataTable } from "@/components/table/data-table";
 import { DataTableColumnHeader } from "@/components/table/data-table-column-header";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 
 import useAuth from "@/hooks/use-auth";
-import { DataTableRowActions } from "@/templates/Desktop/Lend/Table/Components/DataTableRowActions";
-import { DataTableToolbar } from "@/templates/Desktop/Lend/Table/Components/DataTableToolbar";
-import { useLend } from "@/templates/Desktop/Lend/Table/Hook/useLend";
+import { DataTableToolbar } from "@/templates/Desktop/History/Table/Components/DataTableToolbar";
+import { useHistory } from "@/templates/Desktop/History/Table/Hook/useHistory";
 
 export default function DataColumns() {
 	const {
@@ -23,11 +21,11 @@ export default function DataColumns() {
 		handleOptionFilter,
 		pagination,
 		tableData
-	} = useLend();
+	} = useHistory();
 
 	const { user } = useAuth();
 
-	const columns: ColumnDef<TransactionInterface>[] = [
+	const columns: ColumnDef<TransactionHistoryInterface>[] = [
 		{
 			accessorKey: "name",
 			header: ({ column }) => (
@@ -40,22 +38,29 @@ export default function DataColumns() {
 				/>
 			),
 			cell: ({ row }) => {
-				const image = row.original.borrower.image;
-				const name = row.original.borrower.name;
+				const image =
+					user && user.id === row.original.borrower.id
+						? row.original.lender.image
+						: row.original.borrower.image;
+
+				const userName =
+					user && user.id === row.original.borrower.id
+						? row.original.lender.name || row.original.lender.email
+						: row.original.borrower.name || row.original.borrower.email;
 
 				return (
 					<div className="flex items-center gap-2">
 						<Avatar>
 							<AvatarImage
 								src={image || undefined}
-								alt={name || "Unknown"}
+								alt={userName}
 								width={40}
 								height={40}
 								className="rounded-full"
 							/>
-							<AvatarFallback>{name ? name.slice(0, 2) : "Unknown"}</AvatarFallback>
+							<AvatarFallback>{userName?.slice(0, 2)}</AvatarFallback>
 						</Avatar>
-						<span className="max-w-32 truncate">{name || "Unknown"}</span>
+						<span className="max-w-32 truncate">{userName || "Unknown"}</span>
 					</div>
 				);
 			}
@@ -71,7 +76,35 @@ export default function DataColumns() {
 					title="Email"
 				/>
 			),
-			cell: ({ row }) => row.original.borrower.email
+			cell: ({ row }) => {
+				const email =
+					user && user.id === row.original.borrower.id
+						? row.original.lender.email
+						: row.original.borrower.email;
+
+				return <span>{email}</span>;
+			}
+		},
+		{
+			accessorKey: "type",
+			header: ({ column }) => (
+				<DataTableColumnHeader
+					column={column}
+					sortBy={sortBy}
+					sortOrder={sortOrder}
+					handleSorting={handleSorting}
+					title="Type"
+				/>
+			),
+			cell: ({ row }) => {
+				const variant: ExtendedVariant = row.original.type === "lend" ? "cyan" : "destructive";
+				return (
+					<ExtendedBadge variant={variant}>
+						{row.original.type.charAt(0).toUpperCase() + row.original.type.slice(1)}
+					</ExtendedBadge>
+				);
+			},
+			enableSorting: false
 		},
 		{
 			accessorKey: "amount",
@@ -87,60 +120,6 @@ export default function DataColumns() {
 			cell: ({ row }) => `${row.original.currency.symbol}${row.original.amount}`
 		},
 		{
-			accessorKey: "remainingAmount",
-			header: ({ column }) => (
-				<DataTableColumnHeader
-					column={column}
-					sortBy={sortBy}
-					sortOrder={sortOrder}
-					handleSorting={handleSorting}
-					title="Remaining Amount"
-				/>
-			),
-			cell: ({ row }) => `${row.original.currency.symbol}${row.original.remainingAmount}`
-		},
-		{
-			accessorKey: "amountPaid",
-			header: ({ column }) => (
-				<DataTableColumnHeader
-					column={column}
-					sortBy={sortBy}
-					sortOrder={sortOrder}
-					handleSorting={handleSorting}
-					title="Amount Paid"
-				/>
-			),
-			cell: ({ row }) => `${row.original.currency.symbol}${row.original.amountPaid}`
-		},
-		{
-			accessorKey: "reviewAmount",
-			header: ({ column }) => (
-				<DataTableColumnHeader
-					column={column}
-					sortBy={sortBy}
-					sortOrder={sortOrder}
-					handleSorting={handleSorting}
-					title="Review Amount"
-				/>
-			),
-			cell: ({ row }) => {
-				if (row.original.reviewAmount > 0) {
-					return (
-						<Tooltip>
-							<TooltipTrigger asChild>
-								<ExtendedBadge variant="purple">{`${row.original.currency.symbol}${row.original.reviewAmount}`}</ExtendedBadge>
-							</TooltipTrigger>
-							<TooltipContent>
-								<p>
-									This is the requested amount under review. Please verify the transaction details.
-								</p>
-							</TooltipContent>
-						</Tooltip>
-					);
-				} else return <span>{`${row.original.currency.symbol}${row.original.reviewAmount}`}</span>;
-			}
-		},
-		{
 			accessorKey: "status",
 			header: ({ column }) => (
 				<DataTableColumnHeader
@@ -153,28 +132,11 @@ export default function DataColumns() {
 			),
 			cell: ({ row }) => {
 				const status = row.original.status;
-
-				// Format status text: replace underscores with spaces and capitalize each word
-				const formattedStatus = status
-					.split("_")
-					.map(word => word.charAt(0).toUpperCase() + word.slice(1))
-					.join(" ");
-
-				// Determine badge variant based on status
-				const getStatusVariant = (status: string) => {
-					switch (status.toLowerCase()) {
-						case "partially_paid":
-							return "orange";
-						case "completed":
-							return "success";
-						case "requested_repay":
-							return "destructive";
-						default:
-							return "default";
-					}
-				};
-
-				return <ExtendedBadge variant={getStatusVariant(status)}>{formattedStatus}</ExtendedBadge>;
+				return (
+					<ExtendedBadge variant={"warning"}>
+						{status.charAt(0).toUpperCase() + status.slice(1)}
+					</ExtendedBadge>
+				);
 			},
 			enableSorting: false
 		},
@@ -220,10 +182,6 @@ export default function DataColumns() {
 					hour12: true
 				});
 			}
-		},
-		{
-			id: "actions",
-			cell: ({ row }) => <DataTableRowActions row={row} />
 		}
 	];
 

@@ -299,18 +299,24 @@ export default function RequestsProvider({ children }: GlobalLayoutProps) {
 	const handleOptionFilter = (key: string, value: string | string[] | undefined | null) => {
 		const isDefaultPagination =
 			(key === "page" && value === "1") || (key === "limit" && value === "10");
+		const isPaginationFilter = key === "page" || key === "limit";
 
 		if (isDefaultPagination) {
 			handleDeleteSearch(key);
 		} else {
-			handleSearchParams([{ key, value }]);
+			// ✅ Combine filter update with page reset in a single call to avoid race condition
+			if (isPaginationFilter) {
+				handleSearchParams([{ key, value }]);
+			} else {
+				handleSearchParams([
+					{ key, value },
+					{ key: "page", value: "1" }
+				]);
+			}
 		}
 
-		const isPaginationFilter = key === "page" || key === "limit";
 		if (!isPaginationFilter) {
 			setSelectedIds([]);
-			// ✅ common expectation: when changing a non-pagination filter, reset page
-			handleSearchParams([{ key: "page", value: "1" }]);
 		}
 
 		setApiSearchParams(prevState => ({

@@ -171,7 +171,7 @@ export default function DataColumns() {
 					title="Amount"
 				/>
 			),
-			cell: ({ row }) => row.original.amount
+			cell: ({ row }) => `${row.original.currency.symbol}${row.original.amount}`
 		},
 		{
 			accessorKey: "status",

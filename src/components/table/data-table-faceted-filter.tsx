@@ -73,7 +73,10 @@ export function DataTableFacetedFilter({
 						options?.find(option => selectedValues.includes(option.value)) &&
 						selectedValues.length > 0 && (
 							<>
-								<Separator orientation="vertical" className="mx-2 h-4" />
+								<Separator
+									orientation="vertical"
+									className="mx-2 self-center! data-[orientation=vertical]:h-4"
+								/>
 								<Badge variant="secondary" className="rounded-sm px-1 font-normal lg:hidden">
 									{selectedValues.length}
 								</Badge>
