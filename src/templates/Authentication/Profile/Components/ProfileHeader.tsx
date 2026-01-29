@@ -19,7 +19,7 @@ export default function ProfileHeader({ user, onEdit }: ProfileHeaderProps) {
 		<Card className="p-6">
 			<div className="flex items-start justify-between">
 				<div className="flex items-center gap-4">
-					<Avatar className="h-16 w-16">
+					<Avatar className="h-16 w-16 self-baseline">
 						<AvatarImage src={user.image || undefined} alt={user.name || user.email} />
 						<AvatarFallback>{getUserInitials(user.name)}</AvatarFallback>
 					</Avatar>
