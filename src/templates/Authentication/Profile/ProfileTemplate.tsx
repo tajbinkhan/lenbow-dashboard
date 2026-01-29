@@ -1,10 +1,12 @@
 "use client";
 
 import { useState } from "react";
+import { toast } from "sonner";
 
 import Loader from "@/components/ui/loader";
 
 import useAuth from "@/hooks/use-auth";
+import { useUpdateProfileMutation } from "@/templates/Authentication/Login/Redux/AuthenticationAPISlice";
 import ProfileHeader from "@/templates/Authentication/Profile/Components/ProfileHeader";
 import ProfileInfo from "@/templates/Authentication/Profile/Components/ProfileInfo";
 import SecuritySettings from "@/templates/Authentication/Profile/Components/SecuritySettings";
@@ -15,9 +17,19 @@ export default function ProfileTemplate() {
 
 	const { user, isLoading, isAuthenticated } = useAuth();
 
-	const handleEditProfile = (data: any) => {
-		console.log("Profile updated:", data);
-		setIsEditingProfile(false);
+	const [updateProfile, { isLoading: isUpdatingProfile }] = useUpdateProfileMutation();
+
+	const handleEditProfile = async (data: { name: string }) => {
+		await updateProfile({ name: data.name })
+			.unwrap()
+			.then(() => {
+				// Optionally show a success message
+				setIsEditingProfile(false);
+				toast.success("Profile updated successfully");
+			})
+			.catch(() => {
+				toast.error("Failed to update profile. Please try again.");
+			});
 	};
 
 	const handleDeleteAccount = () => {
@@ -38,6 +50,7 @@ export default function ProfileTemplate() {
 				onOpenChange={setIsEditingProfile}
 				user={user}
 				onSubmit={handleEditProfile}
+				isUpdating={isUpdatingProfile}
 			/>
 		</div>
 	);

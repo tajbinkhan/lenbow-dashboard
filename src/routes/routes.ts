@@ -24,6 +24,7 @@ export const apiRoute = {
 	me: "/auth/me",
 	logout: "/auth/logout",
 	updateProfile: "/auth/profile",
+	updateProfileImage: "/auth/profile/image",
 	changePassword: "/auth/change-password",
 	toggle2FA: "/auth/2fa",
 	deleteAccount: "/auth/account",

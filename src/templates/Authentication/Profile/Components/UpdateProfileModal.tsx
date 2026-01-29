@@ -1,14 +1,21 @@
 "use client";
 
-import type React from "react";
-import { useState } from "react";
+import { useUpdateProfileImageMutation } from "../../Login/Redux/AuthenticationAPISlice";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Camera } from "lucide-react";
+import { useRef, useState } from "react";
+import { useForm } from "react-hook-form";
+import { toast } from "sonner";
+import { z } from "zod";
 
 // Import User type
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
+import { Field, FieldError } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { LoadingButton } from "@/components/ui/loading-button";
 import {
 	ResponsiveDialog,
 	ResponsiveDialogContent,
@@ -18,39 +25,122 @@ import {
 } from "@/components/ui/responsive-dialog";
 
 import { getUserInitials } from "@/core/helper";
+import { validateString } from "@/validators/commonRule";
+
+// Define the form schema
+const updateProfileSchema = z.object({
+	name: validateString("Full Name", { min: 2, max: 100 })
+});
+
+type UpdateProfileFormData = z.infer<typeof updateProfileSchema>;
 
 interface UpdateProfileModalProps {
 	open: boolean;
 	onOpenChange: (open: boolean) => void;
 	user: User;
-	onSubmit: (data: { name: string; avatar: string }) => void;
+	onSubmit: (data: { name: string }) => Promise<void>;
+	isUpdating: boolean;
 }
 
 export default function UpdateProfileModal({
 	open,
 	onOpenChange,
 	user,
-	onSubmit
+	onSubmit,
+	isUpdating
 }: UpdateProfileModalProps) {
-	const [name, setName] = useState(user.name);
-	const [avatar, setAvatar] = useState(user.image);
-	const [isLoading, setIsLoading] = useState(false);
+	const [updateProfileImage, { isLoading: isUploadingImage }] = useUpdateProfileImageMutation();
+	const [imagePreview, setImagePreview] = useState<string | null>(null);
+	const [selectedFile, setSelectedFile] = useState<File | null>(null);
+	const fileInputRef = useRef<HTMLInputElement>(null);
 
-	const handleSubmit = async (e: React.FormEvent) => {
-		e.preventDefault();
-		setIsLoading(true);
+	const {
+		register,
+		handleSubmit,
+		formState: { errors, isSubmitting },
+		reset
+	} = useForm<UpdateProfileFormData>({
+		resolver: zodResolver(updateProfileSchema),
+		defaultValues: {
+			name: user.name || ""
+		}
+	});
+
+	const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+		const file = e.target.files?.[0];
+		if (file) {
+			// Validate file type
+			const allowed = ["image/png", "image/jpeg", "image/webp"] as const;
+			if (!allowed.includes(file.type as any)) {
+				toast.error("Please select a valid image file (PNG, JPEG, or WebP)");
+				return;
+			}
+
+			// Validate file size (e.g., max 2MB)
+			const maxSize = 2 * 1024 * 1024; // 2MB
+			if (file.size > maxSize) {
+				toast.error("Image size should be less than 2MB");
+				return;
+			}
+
+			// Validate image is square
+			const reader = new FileReader();
+			reader.onload = event => {
+				const img = new Image();
+				img.onload = () => {
+					if (img.width !== img.height) {
+						toast.error("Please select a square image (width and height must be equal)");
+						// Reset the file input
+						if (fileInputRef.current) {
+							fileInputRef.current.value = "";
+						}
+						return;
+					}
+
+					// Image is valid and square - set preview
+					setSelectedFile(file);
+					setImagePreview(event.target?.result as string);
+				};
+				img.onerror = () => {
+					alert("Failed to load image. Please try another file.");
+				};
+				img.src = event.target?.result as string;
+			};
+			reader.readAsDataURL(file);
+		}
+	};
+
+	const handleAvatarClick = () => {
+		fileInputRef.current?.click();
+	};
+
+	const onFormSubmit = async (data: UpdateProfileFormData) => {
 		try {
-			await new Promise(resolve => setTimeout(resolve, 500));
-			// onSubmit({ name, avatar });
-		} finally {
-			setIsLoading(false);
+			// Upload image first if selected
+			if (selectedFile) {
+				const formData = new FormData();
+				formData.append("avatar", selectedFile);
+
+				await updateProfileImage(formData).unwrap();
+			}
+
+			// Then update profile name
+			await onSubmit({ name: data.name });
+
+			// Reset form state
+			setImagePreview(null);
+			setSelectedFile(null);
+			onOpenChange(false);
+		} catch (error) {
+			console.error("Failed to update profile:", error);
 		}
 	};
 
 	const handleOpenChange = (newOpen: boolean) => {
 		if (!newOpen) {
-			setName(user.name);
-			setAvatar(user.image);
+			reset();
+			setImagePreview(null);
+			setSelectedFile(null);
 		}
 		onOpenChange(newOpen);
 	};
@@ -66,59 +156,73 @@ export default function UpdateProfileModal({
 						Update your profile information and avatar
 					</ResponsiveDialogDescription>
 				</ResponsiveDialogHeader>
-				<form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
-					<div className="flex justify-center py-2">
-						<Avatar className="h-16 w-16 sm:h-20 sm:w-20">
-							<AvatarImage src={avatar || undefined} alt={name || user.email} />
-							<AvatarFallback>{getUserInitials(name)}</AvatarFallback>
-						</Avatar>
+				<form onSubmit={handleSubmit(onFormSubmit)} className="space-y-4 sm:space-y-6">
+					{/* Hidden file input */}
+					<input
+						ref={fileInputRef}
+						type="file"
+						accept="image/png,image/jpeg,image/webp"
+						onChange={handleImageSelect}
+						className="hidden"
+						disabled={isUploadingImage || isUpdating || isSubmitting}
+					/>
+
+					{/* Avatar with click to upload */}
+					<div className="flex flex-col items-center gap-3 py-2">
+						<button
+							type="button"
+							onClick={handleAvatarClick}
+							className="group relative cursor-pointer disabled:cursor-not-allowed disabled:opacity-60"
+							disabled={isUploadingImage || isUpdating || isSubmitting}
+						>
+							<Avatar className="h-20 w-20 sm:h-24 sm:w-24">
+								<AvatarImage
+									src={imagePreview || user.image || undefined}
+									alt={user.name || user.email}
+								/>
+								<AvatarFallback>{getUserInitials(user.name)}</AvatarFallback>
+							</Avatar>
+							<div className="absolute inset-0 flex items-center justify-center rounded-full bg-black/50 opacity-0 transition-opacity group-hover:opacity-100">
+								<Camera className="h-8 w-8 text-white" />
+							</div>
+						</button>
+						<p className="text-muted-foreground text-center text-xs sm:text-sm">
+							Click avatar to change photo <br /> (square images only)
+						</p>
 					</div>
 
-					<div className="space-y-2">
+					<Field data-invalid={!!errors.name}>
 						<Label htmlFor="full-name" className="text-sm sm:text-base">
 							Full Name
 						</Label>
 						<Input
 							id="full-name"
-							value={name || ""}
-							onChange={e => setName(e.target.value)}
+							{...register("name")}
 							placeholder="Enter your full name"
 							className="text-sm sm:text-base"
-							required
+							disabled={isUploadingImage || isUpdating || isSubmitting}
 						/>
-					</div>
-
-					<div className="space-y-2">
-						<Label htmlFor="avatar-url" className="text-sm sm:text-base">
-							Avatar URL
-						</Label>
-						<Input
-							id="avatar-url"
-							type="url"
-							value={avatar || ""}
-							onChange={e => setAvatar(e.target.value)}
-							placeholder="https://example.com/avatar.jpg"
-							className="text-sm sm:text-base"
-						/>
-					</div>
+						<FieldError errors={errors.name ? [errors.name] : []} />
+					</Field>
 
 					<div className="flex flex-col-reverse gap-2 pt-2 sm:flex-row sm:justify-end sm:gap-3 sm:pt-4">
 						<Button
 							type="button"
 							variant="outline"
 							onClick={() => handleOpenChange(false)}
-							disabled={isLoading}
+							disabled={isSubmitting || isUploadingImage || isUpdating}
 							className="w-full text-sm sm:w-auto sm:text-base"
 						>
 							Cancel
 						</Button>
-						<Button
+						<LoadingButton
 							type="submit"
-							disabled={isLoading}
 							className="w-full text-sm sm:w-auto sm:text-base"
+							isLoading={isSubmitting || isUploadingImage || isUpdating}
+							loadingText="Saving..."
 						>
-							{isLoading ? "Saving..." : "Save Changes"}
-						</Button>
+							Save Changes
+						</LoadingButton>
 					</div>
 				</form>
 			</ResponsiveDialogContent>

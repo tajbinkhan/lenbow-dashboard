@@ -21,11 +21,34 @@ export const authenticationApiSlice = createApi({
 				method: "POST"
 			}),
 			invalidatesTags: ["User", "Me"]
+		}),
+
+		updateProfile: builder.mutation<ApiResponse<User>, { name: string; avatar?: string }>({
+			query: data => ({
+				url: apiRoute.updateProfile,
+				method: "PUT",
+				body: data
+			}),
+			invalidatesTags: ["Me"]
+		}),
+
+		updateProfileImage: builder.mutation<ApiResponse<User>, FormData>({
+			query: formData => ({
+				url: apiRoute.updateProfileImage,
+				method: "PUT",
+				body: formData
+			}),
+			invalidatesTags: ["Me"]
 		})
 	})
 });
 
 // Export hooks
-export const { useMeQuery, useLogoutMutation } = authenticationApiSlice;
+export const {
+	useMeQuery,
+	useLogoutMutation,
+	useUpdateProfileMutation,
+	useUpdateProfileImageMutation
+} = authenticationApiSlice;
 
 export const authenticationApiReducer = authenticationApiSlice.reducer;
