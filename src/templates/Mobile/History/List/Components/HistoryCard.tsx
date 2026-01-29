@@ -12,6 +12,14 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import useAuth from "@/hooks/use-auth";
 import { useHistory } from "@/templates/Mobile/History/Hook/useHistory";
 
+// Helper function to format action text
+const formatActionText = (action: string): string => {
+	return action
+		.split("_")
+		.map(word => word.charAt(0).toUpperCase() + word.slice(1))
+		.join(" ");
+};
+
 interface HistoryCardProps {
 	data: TransactionHistoryInterface;
 }
@@ -101,6 +109,12 @@ export default function HistoryCard({ data }: HistoryCardProps) {
 									})
 								: "No due date"}
 						</span>
+					</div>
+					<div className="mt-1 flex items-center justify-between">
+						<span className="text-muted-foreground text-xs font-medium">Action</span>
+						<ExtendedBadge variant={"cyan"} className="capitalize">
+							{formatActionText(data.action)}
+						</ExtendedBadge>
 					</div>
 					<div className="mt-1 flex items-center justify-between">
 						<span className="text-muted-foreground text-xs font-medium">Status</span>

@@ -11,6 +11,14 @@ import useAuth from "@/hooks/use-auth";
 import { DataTableToolbar } from "@/templates/Desktop/History/Table/Components/DataTableToolbar";
 import { useHistory } from "@/templates/Desktop/History/Table/Hook/useHistory";
 
+// Helper function to format action text
+const formatActionText = (action: string): string => {
+	return action
+		.split("_")
+		.map(word => word.charAt(0).toUpperCase() + word.slice(1))
+		.join(" ");
+};
+
 export default function DataColumns() {
 	const {
 		isLoading,
@@ -133,10 +141,27 @@ export default function DataColumns() {
 			cell: ({ row }) => {
 				const status = row.original.status;
 				return (
-					<ExtendedBadge variant={"warning"}>
+					<ExtendedBadge variant={"default"}>
 						{status.charAt(0).toUpperCase() + status.slice(1)}
 					</ExtendedBadge>
 				);
+			},
+			enableSorting: false
+		},
+		{
+			accessorKey: "action",
+			header: ({ column }) => (
+				<DataTableColumnHeader
+					column={column}
+					sortBy={sortBy}
+					sortOrder={sortOrder}
+					handleSorting={handleSorting}
+					title="Transaction Action"
+				/>
+			),
+			cell: ({ row }) => {
+				const action = row.original.action;
+				return <ExtendedBadge variant={"cyan"}>{formatActionText(action)}</ExtendedBadge>;
 			},
 			enableSorting: false
 		},

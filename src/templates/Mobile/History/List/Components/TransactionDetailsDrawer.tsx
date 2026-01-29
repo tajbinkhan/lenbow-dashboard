@@ -18,6 +18,14 @@ import { Separator } from "@/components/ui/separator";
 import useAuth from "@/hooks/use-auth";
 import { useHistory } from "@/templates/Mobile/History/Hook/useHistory";
 
+// Helper function to format action text
+const formatActionText = (action: string): string => {
+	return action
+		.split("_")
+		.map(word => word.charAt(0).toUpperCase() + word.slice(1))
+		.join(" ");
+};
+
 export function TransactionDetailsDrawer() {
 	const { activeTransaction, setActiveTransaction } = useHistory();
 	const { user } = useAuth();
@@ -53,10 +61,8 @@ export function TransactionDetailsDrawer() {
 		<Drawer open={isOpen} onOpenChange={handleOpenChange}>
 			<DrawerContent className="flex max-h-[90vh] flex-col">
 				<div className="mx-auto flex h-full w-full max-w-sm flex-col">
-					<DrawerHeader className="shrink-0 pb-2 text-left">
-						<div className="flex items-center justify-between">
-							<DrawerTitle className="text-xl">Transaction Details</DrawerTitle>
-						</div>
+					<DrawerHeader className="shrink-0 pb-2 text-center">
+						<DrawerTitle className="text-xl">Transaction Details</DrawerTitle>
 						<DrawerDescription>View complete details of this transaction.</DrawerDescription>
 					</DrawerHeader>
 
@@ -107,6 +113,18 @@ export function TransactionDetailsDrawer() {
 										<span className="text-muted-foreground truncate text-sm">{email}</span>
 									</div>
 								</div>
+							</div>
+
+							<Separator />
+
+							{/* Transaction Action Section */}
+							<div className="flex items-center justify-between">
+								<span className="text-muted-foreground text-xs font-medium">
+									Transaction Action
+								</span>
+								<ExtendedBadge variant={"cyan"} className="text-sm">
+									{formatActionText(data.action)}
+								</ExtendedBadge>
 							</div>
 
 							<Separator />
