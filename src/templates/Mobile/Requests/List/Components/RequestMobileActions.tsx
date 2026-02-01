@@ -18,6 +18,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { LoadingButton } from "@/components/ui/loading-button";
 
+import useAuth from "@/hooks/use-auth";
 import {
 	transactionApiSlice,
 	useDeleteTransactionRequestMutation,
@@ -36,7 +37,10 @@ interface RequestMobileActionsProps {
 export function RequestMobileActions({ data, showFullButtons = false }: RequestMobileActionsProps) {
 	const dispatch = useAppDispatch();
 	const { setActiveTransaction } = useRequests();
-	const type = data.type;
+
+	const { user } = useAuth();
+
+	const isCreatedByMe = data.createdBy === user?.id;
 
 	const [isPending, startTransition] = useTransition();
 	const [isOpenDeleteModal, setIsOpenDeleteModal] = useState(false);
@@ -90,7 +94,7 @@ export function RequestMobileActions({ data, showFullButtons = false }: RequestM
 	const containerClass = showFullButtons ? "flex flex-col w-full gap-3" : "flex gap-2";
 	const buttonClass = showFullButtons ? "w-full justify-center h-11 text-base" : "h-10 w-10";
 
-	if (type === "lend") {
+	if (!isCreatedByMe) {
 		return (
 			<>
 				{/* Request Reject Modal */}
@@ -146,7 +150,7 @@ export function RequestMobileActions({ data, showFullButtons = false }: RequestM
 		);
 	}
 
-	if (type === "borrow") {
+	if (isCreatedByMe) {
 		return (
 			<>
 				{/* Request Update Modal */}

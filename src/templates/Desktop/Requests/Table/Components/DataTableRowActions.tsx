@@ -20,6 +20,7 @@ import { Button } from "@/components/ui/button";
 import { LoadingButton } from "@/components/ui/loading-button";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 
+import useAuth from "@/hooks/use-auth";
 import {
 	transactionApiSlice,
 	useDeleteTransactionRequestMutation,
@@ -37,7 +38,9 @@ export function DataTableRowActions<TData>({ row }: DataTableRowActionsProps<TDa
 	const dispatch = useAppDispatch();
 	const data = row.original as TransactionInterface;
 
-	const type = data.type;
+	const { user } = useAuth();
+
+	const isCreatedByMe = data.createdBy === user?.id;
 
 	const [isPending, startTransition] = useTransition();
 	const [isOpenDeleteModal, setIsOpenDeleteModal] = useState(false);
@@ -86,7 +89,8 @@ export function DataTableRowActions<TData>({ row }: DataTableRowActionsProps<TDa
 		});
 	};
 
-	if (type === "lend") {
+	// If transaction was NOT created by me, I can accept/reject it
+	if (!isCreatedByMe) {
 		return (
 			<>
 				{/* Request Reject Modal */}
@@ -152,7 +156,7 @@ export function DataTableRowActions<TData>({ row }: DataTableRowActionsProps<TDa
 		);
 	}
 
-	if (type === "borrow") {
+	if (isCreatedByMe) {
 		return (
 			<>
 				{/* Request Update Modal */}

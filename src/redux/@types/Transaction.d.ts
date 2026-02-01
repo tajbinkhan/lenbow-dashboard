@@ -39,6 +39,7 @@ interface TransactionInterface {
 	status: TransactionStatusType;
 	description: string | null;
 	dueDate: string | null;
+	createdBy: string;
 	createdAt: string;
 	updatedAt: string;
 }
@@ -92,4 +93,5 @@ interface TransactionHistoryInterface {
 		email: string;
 		image: string | null;
 	};
+	createdBy: string;
 }

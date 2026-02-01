@@ -71,7 +71,8 @@ export default function RequestsCreateModal({
 	const form = useForm({
 		resolver: zodResolver(createRequestsSchema),
 		defaultValues: {
-			lenderId: "",
+			contactId: "",
+			type: "lend",
 			amount: "",
 			currency: "",
 			dueDate: undefined,
@@ -82,7 +83,8 @@ export default function RequestsCreateModal({
 	useEffect(() => {
 		if (isCreateModalOpen) {
 			form.reset({
-				lenderId: "",
+				contactId: "",
+				type: "lend",
 				amount: "",
 				currency: user?.currencyCode || "",
 				dueDate: undefined,
@@ -94,7 +96,8 @@ export default function RequestsCreateModal({
 	const onSubmit = async (data: CreateRequestsSchema) => {
 		try {
 			await createTransactionRequest({
-				lenderId: data.lenderId,
+				contactId: data.contactId,
+				type: data.type,
 				amount: Number(data.amount),
 				currency: data.currency,
 				...(data.dueDate && { dueDate: data.dueDate }),
@@ -140,15 +143,15 @@ export default function RequestsCreateModal({
 						>
 							<div className="space-y-5">
 								<Controller
-									name="lenderId"
+									name="contactId"
 									control={form.control}
 									render={({ field, fieldState }) => (
 										<div className="space-y-2">
 											<div className="text-muted-foreground flex items-center gap-2 text-sm font-medium">
-												User
+												Account ID
 											</div>
 											<FetchConnectedContactList
-												id="lenderId"
+												id="contactId"
 												value={field.value}
 												onChange={field.onChange}
 												aria-invalid={fieldState.invalid}
@@ -226,6 +229,40 @@ export default function RequestsCreateModal({
 											)}
 										/>
 									</div>
+
+									<Controller
+										name="type"
+										control={form.control}
+										render={({ field, fieldState }) => (
+											<div className="space-y-2">
+												<div className="text-muted-foreground flex items-center gap-2 text-sm font-medium">
+													Request Type
+												</div>
+												<Select value={field.value} onValueChange={field.onChange}>
+													<SelectTrigger className="bg-muted/40 focus:border-primary h-12! w-full rounded-xl border-transparent transition-all">
+														<SelectValue placeholder="Select request type" />
+													</SelectTrigger>
+													<SelectContent>
+														<SelectGroup>
+															<SelectItem value="lend">Lend</SelectItem>
+															<SelectItem value="borrow">Borrow</SelectItem>
+														</SelectGroup>
+													</SelectContent>
+												</Select>
+												{field.value && (
+													<p className="text-muted-foreground text-xs">
+														{field.value === "lend"
+															? "You're lending money to the person"
+															: "You're borrowing money from the person"}
+													</p>
+												)}
+												{fieldState.invalid && (
+													<p className="text-destructive text-xs">{fieldState.error?.message}</p>
+												)}
+											</div>
+										)}
+									/>
+
 									<Controller
 										name="dueDate"
 										control={form.control}
@@ -235,27 +272,59 @@ export default function RequestsCreateModal({
 													<CalendarDesc className="h-3.5 w-3.5" /> Due Date
 												</div>
 
-												<div className="relative">
+												<div className="relative flex gap-2">
+													<Button
+														variant={"outline"}
+														className={`border-input/60 h-11 w-full justify-start rounded-xl text-left font-normal ${!field.value && "text-muted-foreground"}`}
+														onClick={() => setOpen(true)}
+														onKeyDown={e => {
+															if (["Enter", " ", "ArrowDown"].includes(e.key)) {
+																e.preventDefault();
+																setOpen(true);
+															} else {
+																e.preventDefault();
+															}
+														}}
+														type="button"
+													>
+														{field.value ? formatDate(field.value) : <span>Pick a date</span>}
+													</Button>
+
 													<Popover open={open} onOpenChange={setOpen}>
 														<PopoverTrigger asChild>
 															<Button
-																variant={"outline"}
-																className={`border-input/60 h-11 w-full justify-start rounded-xl text-left font-normal ${!field.value && "text-muted-foreground"}`}
+																type="button"
+																variant="ghost"
+																className="absolute top-1/2 right-2 size-6 -translate-y-1/2"
+																onClick={() => setOpen(true)}
+																tabIndex={-1}
 															>
-																{field.value ? formatDate(field.value) : <span>Pick a date</span>}
-																<CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+																<CalendarIcon className="size-3.5" />
+																<span className="sr-only">Select date</span>
 															</Button>
 														</PopoverTrigger>
-														<PopoverContent className="w-auto p-0" align="start">
+
+														<PopoverContent
+															className="w-auto overflow-hidden p-0"
+															align="end"
+															alignOffset={-8}
+															sideOffset={10}
+														>
 															<Calendar
 																mode="single"
 																selected={field.value}
+																captionLayout="dropdown"
+																defaultMonth={field.value ?? new Date()}
+																startMonth={new Date()}
+																endMonth={
+																	new Date(new Date().setFullYear(new Date().getFullYear() + 5))
+																}
+																disabled={date => date < new Date()}
 																onSelect={date => {
+																	if (!date) return;
 																	field.onChange(date);
 																	setOpen(false);
 																}}
-																disabled={date => date < new Date()}
-																initialFocus
 															/>
 														</PopoverContent>
 													</Popover>

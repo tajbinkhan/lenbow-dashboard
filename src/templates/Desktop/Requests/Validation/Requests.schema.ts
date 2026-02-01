@@ -8,7 +8,8 @@ import {
 } from "@/validators/commonRule";
 
 export const createRequestsSchema = z.object({
-	lenderId: validateString("Account ID", { min: 36, max: 36 }),
+	contactId: validateString("Account ID", { min: 36, max: 36 }),
+	type: validateEnum("Request Type", ["lend", "borrow"]),
 	amount: validateClientNumber("Amount"),
 	currency: validateString("Currency", { min: 3, max: 3 }),
 	dueDate: validateDate("Due date").optional(),

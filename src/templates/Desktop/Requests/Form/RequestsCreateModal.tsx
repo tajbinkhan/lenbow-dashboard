@@ -72,7 +72,8 @@ export default function RequestsCreateModal({
 	const form = useForm({
 		resolver: zodResolver(createRequestsSchema),
 		defaultValues: {
-			lenderId: "",
+			contactId: "",
+			type: "lend",
 			amount: "",
 			currency: "",
 			dueDate: undefined,
@@ -83,7 +84,8 @@ export default function RequestsCreateModal({
 	useEffect(() => {
 		if (isCreateModalOpen) {
 			form.reset({
-				lenderId: "",
+				contactId: "",
+				type: "lend",
 				amount: "",
 				currency: user?.currencyCode || "",
 				dueDate: undefined,
@@ -95,7 +97,8 @@ export default function RequestsCreateModal({
 	const onSubmit = async (data: CreateRequestsSchema) => {
 		try {
 			await createTransactionRequest({
-				lenderId: data.lenderId,
+				contactId: data.contactId,
+				type: data.type,
 				amount: Number(data.amount),
 				currency: data.currency,
 				...(data.dueDate && { dueDate: data.dueDate }),
@@ -134,13 +137,13 @@ export default function RequestsCreateModal({
 							<div className="p-6">
 								<FieldGroup>
 									<Controller
-										name="lenderId"
+										name="contactId"
 										control={form.control}
 										render={({ field, fieldState }) => (
 											<Field data-invalid={fieldState.invalid}>
-												<FieldLabel htmlFor="lenderId">Account ID</FieldLabel>
+												<FieldLabel htmlFor="contactId">Account ID</FieldLabel>
 												<FetchConnectedContactList
-													id="lenderId"
+													id="contactId"
 													value={field.value}
 													onChange={field.onChange}
 													aria-invalid={fieldState.invalid}
@@ -204,6 +207,32 @@ export default function RequestsCreateModal({
 											)}
 										/>
 									</div>
+
+									<Controller
+										name="type"
+										control={form.control}
+										render={({ field, fieldState }) => (
+											<Field data-invalid={fieldState.invalid}>
+												<FieldLabel htmlFor="type">Request Type</FieldLabel>
+												<Select value={field.value} onValueChange={field.onChange}>
+													<SelectTrigger aria-invalid={fieldState.invalid}>
+														<SelectValue placeholder="Select request type" />
+													</SelectTrigger>
+													<SelectContent>
+														<SelectGroup>
+															<SelectItem value="lend">
+																Lend - You&apos;re lending money to the person
+															</SelectItem>
+															<SelectItem value="borrow">
+																Borrow - You&apos;re borrowing money from the person
+															</SelectItem>
+														</SelectGroup>
+													</SelectContent>
+												</Select>
+												{fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+											</Field>
+										)}
+									/>
 
 									<Controller
 										name="dueDate"

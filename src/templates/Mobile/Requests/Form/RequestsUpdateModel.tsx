@@ -232,27 +232,59 @@ export default function RequestsUpdateModel({
 														<CalendarDesc className="h-3.5 w-3.5" /> Due Date
 													</div>
 
-													<div className="relative">
+													<div className="relative flex gap-2">
+														<Button
+															variant={"outline"}
+															className={`border-input/60 h-11 w-full justify-start rounded-xl text-left font-normal ${!field.value && "text-muted-foreground"}`}
+															onClick={() => setOpen(true)}
+															onKeyDown={e => {
+																if (["Enter", " ", "ArrowDown"].includes(e.key)) {
+																	e.preventDefault();
+																	setOpen(true);
+																} else {
+																	e.preventDefault();
+																}
+															}}
+															type="button"
+														>
+															{field.value ? formatDate(field.value) : <span>Pick a date</span>}
+														</Button>
+
 														<Popover open={open} onOpenChange={setOpen}>
 															<PopoverTrigger asChild>
 																<Button
-																	variant={"outline"}
-																	className={`border-input/60 h-11 w-full justify-start rounded-xl text-left font-normal ${!field.value && "text-muted-foreground"}`}
+																	type="button"
+																	variant="ghost"
+																	className="absolute top-1/2 right-2 size-6 -translate-y-1/2"
+																	onClick={() => setOpen(true)}
+																	tabIndex={-1}
 																>
-																	{field.value ? formatDate(field.value) : <span>Pick a date</span>}
-																	<CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+																	<CalendarIcon className="size-3.5" />
+																	<span className="sr-only">Select date</span>
 																</Button>
 															</PopoverTrigger>
-															<PopoverContent className="w-auto p-0" align="start">
+
+															<PopoverContent
+																className="w-auto overflow-hidden p-0"
+																align="end"
+																alignOffset={-8}
+																sideOffset={10}
+															>
 																<Calendar
 																	mode="single"
 																	selected={field.value}
+																	captionLayout="dropdown"
+																	defaultMonth={field.value ?? new Date()}
+																	startMonth={new Date()}
+																	endMonth={
+																		new Date(new Date().setFullYear(new Date().getFullYear() + 5))
+																	}
+																	disabled={date => date < new Date()}
 																	onSelect={date => {
+																		if (!date) return;
 																		field.onChange(date);
 																		setOpen(false);
 																	}}
-																	disabled={date => date < new Date()}
-																	initialFocus
 																/>
 															</PopoverContent>
 														</Popover>
