@@ -1,11 +1,14 @@
 "use client";
 
 import { ColumnDef } from "@tanstack/react-table";
+import { format } from "date-fns";
+import { ArrowDownLeft, ArrowUpRight } from "lucide-react";
 
-import { ExtendedBadge, type ExtendedVariant } from "@/components/custom-ui/extended-badge";
+import { DescriptionModal } from "@/components/custom-ui/description-modal";
 import { DataTable } from "@/components/table/data-table";
 import { DataTableColumnHeader } from "@/components/table/data-table-column-header";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
 
 import useAuth from "@/hooks/use-auth";
 import { DataTableToolbar } from "@/templates/Desktop/History/Table/Components/DataTableToolbar";
@@ -42,7 +45,7 @@ export default function DataColumns() {
 					sortBy={sortBy}
 					sortOrder={sortOrder}
 					handleSorting={handleSorting}
-					title="Name"
+					title="Contact"
 				/>
 			),
 			cell: ({ row }) => {
@@ -56,9 +59,14 @@ export default function DataColumns() {
 						? row.original.lender.name || row.original.lender.email
 						: row.original.borrower.name || row.original.borrower.email;
 
+				const email =
+					user && user.id === row.original.borrower.id
+						? row.original.lender.email
+						: row.original.borrower.email;
+
 				return (
-					<div className="flex items-center gap-2">
-						<Avatar>
+					<div className="flex items-center gap-3">
+						<Avatar className="h-10 w-10">
 							<AvatarImage
 								src={image || undefined}
 								alt={userName}
@@ -68,29 +76,12 @@ export default function DataColumns() {
 							/>
 							<AvatarFallback>{userName?.slice(0, 2)}</AvatarFallback>
 						</Avatar>
-						<span className="max-w-32 truncate">{userName || "Unknown"}</span>
+						<div>
+							<p className="text-sm font-medium">{userName || "Unknown"}</p>
+							<p className="text-muted-foreground text-xs">{email}</p>
+						</div>
 					</div>
 				);
-			}
-		},
-		{
-			accessorKey: "email",
-			header: ({ column }) => (
-				<DataTableColumnHeader
-					column={column}
-					sortBy={sortBy}
-					sortOrder={sortOrder}
-					handleSorting={handleSorting}
-					title="Email"
-				/>
-			),
-			cell: ({ row }) => {
-				const email =
-					user && user.id === row.original.borrower.id
-						? row.original.lender.email
-						: row.original.borrower.email;
-
-				return <span>{email}</span>;
 			}
 		},
 		{
@@ -105,11 +96,18 @@ export default function DataColumns() {
 				/>
 			),
 			cell: ({ row }) => {
-				const variant: ExtendedVariant = row.original.type === "lend" ? "cyan" : "destructive";
+				const isLend = row.original.type === "lend";
+				const className = isLend
+					? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-500"
+					: "bg-red-500/10 text-red-600 dark:text-red-500";
+				const Icon = isLend ? ArrowDownLeft : ArrowUpRight;
 				return (
-					<ExtendedBadge variant={variant}>
-						{row.original.type.charAt(0).toUpperCase() + row.original.type.slice(1)}
-					</ExtendedBadge>
+					<div className="flex items-center gap-2">
+						<Icon className={`h-4 w-4 ${isLend ? "text-emerald-600" : "text-red-600"}`} />
+						<Badge variant="secondary" className={className}>
+							{row.original.type.charAt(0).toUpperCase() + row.original.type.slice(1)}
+						</Badge>
+					</div>
 				);
 			},
 			enableSorting: false
@@ -125,7 +123,15 @@ export default function DataColumns() {
 					title="Amount"
 				/>
 			),
-			cell: ({ row }) => `${row.original.currency.symbol}${row.original.amount}`
+			cell: ({ row }) => (
+				<div>
+					<p className="text-sm font-semibold">
+						{row.original.currency.symbol}
+						{row.original.amount.toFixed(2)}
+					</p>
+					<p className="text-muted-foreground text-xs">{row.original.currency.code}</p>
+				</div>
+			)
 		},
 		{
 			accessorKey: "status",
@@ -140,10 +146,19 @@ export default function DataColumns() {
 			),
 			cell: ({ row }) => {
 				const status = row.original.status;
+				const className =
+					status === "rejected"
+						? ""
+						: status === "completed"
+							? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-500"
+							: "bg-blue-500/10 text-blue-600 dark:text-blue-500";
 				return (
-					<ExtendedBadge variant={"default"}>
+					<Badge
+						variant={status === "rejected" ? "destructive" : "secondary"}
+						className={className}
+					>
 						{status.charAt(0).toUpperCase() + status.slice(1)}
-					</ExtendedBadge>
+					</Badge>
 				);
 			},
 			enableSorting: false
@@ -161,7 +176,11 @@ export default function DataColumns() {
 			),
 			cell: ({ row }) => {
 				const action = row.original.action;
-				return <ExtendedBadge variant={"cyan"}>{formatActionText(action)}</ExtendedBadge>;
+				return (
+					<Badge variant="secondary" className="bg-blue-500/10 text-blue-600 dark:text-blue-500">
+						{formatActionText(action)}
+					</Badge>
+				);
 			},
 			enableSorting: false
 		},
@@ -173,40 +192,40 @@ export default function DataColumns() {
 					sortBy={sortBy}
 					sortOrder={sortOrder}
 					handleSorting={handleSorting}
-					title="Requested On"
+					title="Date"
 				/>
 			),
-			cell: ({ row }) =>
-				new Date(row.original.requestDate || "").toLocaleDateString(undefined, {
-					year: "numeric",
-					month: "long",
-					day: "numeric",
-					hour12: true
-				})
+			cell: ({ row }) => (
+				<div>
+					<p className="text-sm">
+						{format(new Date(row.original.requestDate || ""), "MMM dd, yyyy")}
+					</p>
+					{row.original.dueDate && (
+						<p className="text-muted-foreground text-xs">
+							Due: {format(new Date(row.original.dueDate), "MMM dd")}
+						</p>
+					)}
+				</div>
+			)
 		},
 		{
-			accessorKey: "dueDate",
-			header: ({ column }) => (
-				<DataTableColumnHeader
-					column={column}
-					sortBy={sortBy}
-					sortOrder={sortOrder}
-					handleSorting={handleSorting}
-					title="Due Date"
-				/>
-			),
+			accessorKey: "description",
+			header: "Description",
 			cell: ({ row }) => {
-				if (!row.original.dueDate) {
-					return "N/A";
+				const description = row.original.description;
+
+				if (!description) {
+					return <span className="text-muted-foreground text-xs">No description</span>;
 				}
 
-				return new Date(row.original.dueDate || "").toLocaleDateString(undefined, {
-					year: "numeric",
-					month: "long",
-					day: "numeric",
-					hour12: true
-				});
-			}
+				return (
+					<div className="max-w-50">
+						<p className="line-clamp-1 text-sm">{description}</p>
+						{description.length > 350 && <DescriptionModal description={description} />}
+					</div>
+				);
+			},
+			enableSorting: false
 		}
 	];
 

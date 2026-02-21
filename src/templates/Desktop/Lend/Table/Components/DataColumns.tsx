@@ -1,11 +1,13 @@
 "use client";
 
 import { ColumnDef } from "@tanstack/react-table";
+import { format } from "date-fns";
 
-import { ExtendedBadge } from "@/components/custom-ui/extended-badge";
+import { DescriptionModal } from "@/components/custom-ui/description-modal";
 import { DataTable } from "@/components/table/data-table";
 import { DataTableColumnHeader } from "@/components/table/data-table-column-header";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 
 import useAuth from "@/hooks/use-auth";
@@ -36,16 +38,17 @@ export default function DataColumns() {
 					sortBy={sortBy}
 					sortOrder={sortOrder}
 					handleSorting={handleSorting}
-					title="Name"
+					title="Contact"
 				/>
 			),
 			cell: ({ row }) => {
 				const image = row.original.borrower.image;
 				const name = row.original.borrower.name;
+				const email = row.original.borrower.email;
 
 				return (
-					<div className="flex items-center gap-2">
-						<Avatar>
+					<div className="flex items-center gap-3">
+						<Avatar className="h-10 w-10">
 							<AvatarImage
 								src={image || undefined}
 								alt={name || "Unknown"}
@@ -55,23 +58,13 @@ export default function DataColumns() {
 							/>
 							<AvatarFallback>{name ? name.slice(0, 2) : "Unknown"}</AvatarFallback>
 						</Avatar>
-						<span className="max-w-32 truncate">{name || "Unknown"}</span>
+						<div>
+							<p className="text-sm font-medium">{name || "Unknown"}</p>
+							<p className="text-muted-foreground text-xs">{email}</p>
+						</div>
 					</div>
 				);
 			}
-		},
-		{
-			accessorKey: "email",
-			header: ({ column }) => (
-				<DataTableColumnHeader
-					column={column}
-					sortBy={sortBy}
-					sortOrder={sortOrder}
-					handleSorting={handleSorting}
-					title="Email"
-				/>
-			),
-			cell: ({ row }) => row.original.borrower.email
 		},
 		{
 			accessorKey: "amount",
@@ -84,7 +77,15 @@ export default function DataColumns() {
 					title="Amount"
 				/>
 			),
-			cell: ({ row }) => `${row.original.currency.symbol}${row.original.amount}`
+			cell: ({ row }) => (
+				<div>
+					<p className="text-sm font-semibold">
+						{row.original.currency.symbol}
+						{row.original.amount.toFixed(2)}
+					</p>
+					<p className="text-muted-foreground text-xs">{row.original.currency.code}</p>
+				</div>
+			)
 		},
 		{
 			accessorKey: "remainingAmount",
@@ -128,7 +129,7 @@ export default function DataColumns() {
 					return (
 						<Tooltip>
 							<TooltipTrigger asChild>
-								<ExtendedBadge variant="purple">{`${row.original.currency.symbol}${row.original.reviewAmount}`}</ExtendedBadge>
+								<Badge className="bg-purple-500/10 text-purple-600 dark:text-purple-500">{`${row.original.currency.symbol}${row.original.reviewAmount}`}</Badge>
 							</TooltipTrigger>
 							<TooltipContent>
 								<p>
@@ -137,7 +138,10 @@ export default function DataColumns() {
 							</TooltipContent>
 						</Tooltip>
 					);
-				} else return <span>{`${row.original.currency.symbol}${row.original.reviewAmount}`}</span>;
+				} else
+					return (
+						<span className="text-sm">{`${row.original.currency.symbol}${row.original.reviewAmount}`}</span>
+					);
 			}
 		},
 		{
@@ -160,21 +164,29 @@ export default function DataColumns() {
 					.map(word => word.charAt(0).toUpperCase() + word.slice(1))
 					.join(" ");
 
-				// Determine badge variant based on status
-				const getStatusVariant = (status: string) => {
+				// Determine badge styling based on status
+				const getStatusClassName = (status: string) => {
 					switch (status.toLowerCase()) {
 						case "partially_paid":
-							return "orange";
+							return "bg-purple-500/10 text-purple-600 dark:text-purple-500";
 						case "completed":
-							return "success";
+							return "bg-emerald-500/10 text-emerald-600 dark:text-emerald-500";
 						case "requested_repay":
-							return "destructive";
+							return "";
 						default:
-							return "default";
+							return "bg-amber-500/10 text-amber-600 dark:text-amber-500";
 					}
 				};
 
-				return <ExtendedBadge variant={getStatusVariant(status)}>{formattedStatus}</ExtendedBadge>;
+				const className = getStatusClassName(status);
+				return (
+					<Badge
+						variant={status === "requested_repay" ? "destructive" : "secondary"}
+						className={className}
+					>
+						{formattedStatus}
+					</Badge>
+				);
 			},
 			enableSorting: false
 		},
@@ -186,40 +198,40 @@ export default function DataColumns() {
 					sortBy={sortBy}
 					sortOrder={sortOrder}
 					handleSorting={handleSorting}
-					title="Requested On"
+					title="Date"
 				/>
 			),
-			cell: ({ row }) =>
-				new Date(row.original.requestDate || "").toLocaleDateString(undefined, {
-					year: "numeric",
-					month: "long",
-					day: "numeric",
-					hour12: true
-				})
+			cell: ({ row }) => (
+				<div>
+					<p className="text-sm">
+						{format(new Date(row.original.requestDate || ""), "MMM dd, yyyy")}
+					</p>
+					{row.original.dueDate && (
+						<p className="text-muted-foreground text-xs">
+							Due: {format(new Date(row.original.dueDate), "MMM dd")}
+						</p>
+					)}
+				</div>
+			)
 		},
 		{
-			accessorKey: "dueDate",
-			header: ({ column }) => (
-				<DataTableColumnHeader
-					column={column}
-					sortBy={sortBy}
-					sortOrder={sortOrder}
-					handleSorting={handleSorting}
-					title="Due Date"
-				/>
-			),
+			accessorKey: "description",
+			header: "Description",
 			cell: ({ row }) => {
-				if (!row.original.dueDate) {
-					return "N/A";
+				const description = row.original.description;
+
+				if (!description) {
+					return <span className="text-muted-foreground text-xs">No description</span>;
 				}
 
-				return new Date(row.original.dueDate || "").toLocaleDateString(undefined, {
-					year: "numeric",
-					month: "long",
-					day: "numeric",
-					hour12: true
-				});
-			}
+				return (
+					<div className="max-w-50">
+						<p className="line-clamp-1 text-sm">{description}</p>
+						{description.length > 350 && <DescriptionModal description={description} />}
+					</div>
+				);
+			},
+			enableSorting: false
 		},
 		{
 			id: "actions",

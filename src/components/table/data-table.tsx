@@ -114,7 +114,11 @@ export function DataTable<TData, TValue>({
 							</TableRow>
 						) : table.getRowModel().rows?.length ? (
 							table.getRowModel().rows.map(row => (
-								<TableRow key={row.id} data-state={row.getIsSelected() && "selected"}>
+								<TableRow
+									key={row.id}
+									data-state={row.getIsSelected() && "selected"}
+									className="group"
+								>
 									{row.getVisibleCells().map(cell => (
 										<TableCell key={cell.id}>
 											{flexRender(cell.column.columnDef.cell, cell.getContext())}
@@ -125,7 +129,11 @@ export function DataTable<TData, TValue>({
 						) : (
 							<TableRow>
 								<TableCell colSpan={columns.length} className="h-24 text-center">
-									No results.
+									<div className="flex flex-col items-center justify-center py-8 text-center">
+										<p className="text-muted-foreground text-sm">
+											No results found. Try adjusting your filters.
+										</p>
+									</div>
 								</TableCell>
 							</TableRow>
 						)}

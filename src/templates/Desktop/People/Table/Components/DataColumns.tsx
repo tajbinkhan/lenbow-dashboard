@@ -1,6 +1,7 @@
 "use client";
 
 import { ColumnDef } from "@tanstack/react-table";
+import { format } from "date-fns";
 
 import { DataTable } from "@/components/table/data-table";
 import { DataTableColumnHeader } from "@/components/table/data-table-column-header";
@@ -33,14 +34,14 @@ export default function DataColumns() {
 					sortBy={sortBy}
 					sortOrder={sortOrder}
 					handleSorting={handleSorting}
-					title="Name"
+					title="Contact"
 				/>
 			),
 			cell: ({ row }) => {
 				const image = row.original.image || undefined;
 				return (
-					<div className="flex items-center gap-2">
-						<Avatar>
+					<div className="flex items-center gap-3">
+						<Avatar className="h-10 w-10">
 							<AvatarImage
 								src={image}
 								alt={row.original.name || row.original.email}
@@ -50,23 +51,13 @@ export default function DataColumns() {
 							/>
 							<AvatarFallback>{row.original.name?.slice(0, 2)}</AvatarFallback>
 						</Avatar>
-						<span className="max-w-32 truncate">{row.original.name || "Unknown"}</span>
+						<div>
+							<p className="text-sm font-medium">{row.original.name || "Unknown"}</p>
+							<p className="text-muted-foreground text-xs">{row.original.email}</p>
+						</div>
 					</div>
 				);
 			}
-		},
-		{
-			accessorKey: "email",
-			header: ({ column }) => (
-				<DataTableColumnHeader
-					column={column}
-					sortBy={sortBy}
-					sortOrder={sortOrder}
-					handleSorting={handleSorting}
-					title="Email"
-				/>
-			),
-			cell: ({ row }) => row.original.email
 		},
 
 		{
@@ -82,7 +73,11 @@ export default function DataColumns() {
 			),
 			cell: ({ row }) => {
 				const phone = row.original.phone;
-				return phone ? phone : "N/A";
+				return phone ? (
+					<span className="text-sm">{phone}</span>
+				) : (
+					<span className="text-muted-foreground text-sm">N/A</span>
+				);
 			}
 		},
 		{
@@ -98,11 +93,7 @@ export default function DataColumns() {
 			),
 			cell: ({ row }) => {
 				const date = new Date(row.original.connectedAt);
-				return date.toLocaleDateString(undefined, {
-					year: "numeric",
-					month: "short",
-					day: "numeric"
-				});
+				return <span className="text-sm">{format(date, "MMM dd, yyyy")}</span>;
 			}
 		}
 	];
