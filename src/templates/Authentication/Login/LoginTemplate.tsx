@@ -1,17 +1,39 @@
 "use client";
 
-import { useTransition } from "react";
-import { FaGoogle, FaHandHoldingDollar } from "react-icons/fa6";
+import { useState, useTransition } from "react";
+import { FaGoogle, FaHandHoldingDollar, FaRocket } from "react-icons/fa6";
+import { toast } from "sonner";
 
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { LoadingButton } from "@/components/ui/loading-button";
 
+import { useLoginMutation } from "./Redux/AuthenticationAPISlice";
 import useRedirect from "@/hooks/use-redirect";
 import { Link } from "@/i18n/navigation";
 import { apiRoute, route } from "@/routes/routes";
 
+const isDemoMode = process.env.NEXT_PUBLIC_APPLICATION_TYPE === "demo";
+
+// Demo credentials for 5 users
+const demoCredentials = [
+	{ email: "demo1@example.com", name: "Demo User One" },
+	{ email: "demo2@example.com", name: "Demo User Two" },
+	{ email: "demo3@example.com", name: "Demo User Three" },
+	{ email: "demo4@example.com", name: "Demo User Four" },
+	{ email: "demo5@example.com", name: "Demo User Five" }
+];
+
+const demoPassword = "Demo123!";
+
 export default function LoginTemplate() {
 	const [isPending, startTransition] = useTransition();
+	const [email, setEmail] = useState("");
+	const [password, setPassword] = useState("");
 	const { redirectUrl } = useRedirect();
+
+	const [login, { isLoading: isLoggingIn }] = useLoginMutation();
 
 	const googleOauthRedirectUrl = redirectUrl
 		? redirectUrl
@@ -23,6 +45,31 @@ export default function LoginTemplate() {
 		});
 	};
 
+	const handleLogin = async (e: React.FormEvent) => {
+		e.preventDefault();
+
+		try {
+			const response = await login({ email, password }).unwrap();
+			toast.success(response.message || "Login successful!");
+
+			// Redirect after successful login
+			window.location.href = redirectUrl || route.private.dashboard;
+		} catch (error: any) {
+			toast.error(error?.data?.message || "Login failed. Please check your credentials.");
+		}
+	};
+
+	const handleTryDemo = () => {
+		// Randomly select one demo user
+		const randomUser = demoCredentials[Math.floor(Math.random() * demoCredentials.length)];
+
+		// Pre-fill the form
+		setEmail(randomUser.email);
+		setPassword(demoPassword);
+
+		toast.info(`Try logging in as ${randomUser.name}!`);
+	};
+
 	return (
 		<main className="from-background via-background to-muted/20 relative flex min-h-screen flex-col items-center justify-center overflow-hidden bg-linear-to-br p-4">
 			{/* Decorative background elements */}
@@ -32,8 +79,26 @@ export default function LoginTemplate() {
 			</div>
 
 			<div className="w-full max-w-md">
+				{/* Demo Mode Notice */}
+				{isDemoMode && (
+					<div className="bg-primary/10 border-primary/20 text-primary mb-4 rounded-2xl border p-4 text-center backdrop-blur-sm">
+						<p className="text-sm font-medium">🎭 Demo Mode Active</p>
+						<p className="text-muted-foreground mt-1 text-xs">
+							Want the real application?{" "}
+							<a
+								href="https://lenbow.vercel.app"
+								target="_blank"
+								rel="noopener noreferrer"
+								className="hover:text-primary font-semibold underline underline-offset-2"
+							>
+								Visit here
+							</a>
+						</p>
+					</div>
+				)}
+
 				{/* Card */}
-				<div className="border-border/50 bg-background/80 hover:border-border space-y-10 rounded-3xl border p-10 shadow-2xl shadow-black/5 backdrop-blur-sm transition-all duration-300 hover:shadow-2xl hover:shadow-black/10">
+				<div className="border-border/50 bg-background/80 hover:border-border space-y-8 rounded-3xl border p-10 shadow-2xl shadow-black/5 backdrop-blur-sm transition-all duration-300 hover:shadow-2xl hover:shadow-black/10">
 					{/* Header */}
 					<div className="flex flex-col items-center space-y-3 text-center">
 						<div className="mb-4 flex items-center gap-3">
@@ -48,35 +113,95 @@ export default function LoginTemplate() {
 						</p>
 					</div>
 
-					{/* Divider */}
-					<div className="relative">
-						<div className="absolute inset-0 flex items-center">
-							<span className="bg-border w-full border-t" />
-						</div>
-						<div className="relative flex justify-center text-xs uppercase">
-							<span className="bg-background text-muted-foreground px-3 font-medium">
-								Continue with
-							</span>
-						</div>
-					</div>
+					{isDemoMode ? (
+						<>
+							{/* Demo Login Form */}
+							<form onSubmit={handleLogin} className="space-y-4">
+								<div className="space-y-2">
+									<Label htmlFor="email">Email</Label>
+									<Input
+										id="email"
+										type="email"
+										placeholder="demo1@example.com"
+										value={email}
+										onChange={e => setEmail(e.target.value)}
+										required
+										className="h-11"
+									/>
+								</div>
+								<div className="space-y-2">
+									<Label htmlFor="password">Password</Label>
+									<Input
+										id="password"
+										type="password"
+										placeholder="Enter password"
+										value={password}
+										onChange={e => setPassword(e.target.value)}
+										required
+										className="h-11"
+									/>
+								</div>
 
-					{/* Button */}
-					<div className="space-y-4">
-						<LoadingButton
-							type="button"
-							className="group hover:shadow-primary/20 h-auto w-full gap-3 py-3.5 transition-all duration-200 hover:shadow-lg"
-							size="lg"
-							isLoading={isPending}
-							loadingText="Redirecting..."
-							onClick={handleGoogleLogin}
-						>
-							<FaGoogle className="h-5 w-5 transition-opacity duration-200 group-hover:opacity-80" />
-							<span className="font-semibold">Continue with Google</span>
-						</LoadingButton>
-						<p className="text-muted-foreground text-center text-xs">
-							Secure authentication powered by Google
-						</p>
-					</div>
+								<div className="space-y-3 pt-2">
+									<LoadingButton
+										type="submit"
+										className="h-11 w-full font-semibold"
+										size="lg"
+										isLoading={isLoggingIn}
+										loadingText="Signing in..."
+									>
+										Sign In
+									</LoadingButton>
+
+									<Button
+										type="button"
+										variant="outline"
+										className="hover:bg-primary/5 hover:border-primary/30 group h-11 w-full gap-2 font-semibold transition-all duration-200"
+										onClick={handleTryDemo}
+									>
+										<FaRocket className="group-hover:text-primary h-4 w-4 transition-colors" />
+										Try with Random Demo User
+									</Button>
+								</div>
+
+								<p className="text-muted-foreground text-center text-xs">
+									Click &quot;Try Demo&quot; to fill credentials automatically
+								</p>
+							</form>
+						</>
+					) : (
+						<>
+							{/* Divider */}
+							<div className="relative">
+								<div className="absolute inset-0 flex items-center">
+									<span className="bg-border w-full border-t" />
+								</div>
+								<div className="relative flex justify-center text-xs uppercase">
+									<span className="bg-background text-muted-foreground px-3 font-medium">
+										Continue with
+									</span>
+								</div>
+							</div>
+
+							{/* Google OAuth Button */}
+							<div className="space-y-4">
+								<LoadingButton
+									type="button"
+									className="group hover:shadow-primary/20 h-auto w-full gap-3 py-3.5 transition-all duration-200 hover:shadow-lg"
+									size="lg"
+									isLoading={isPending}
+									loadingText="Redirecting..."
+									onClick={handleGoogleLogin}
+								>
+									<FaGoogle className="h-5 w-5 transition-opacity duration-200 group-hover:opacity-80" />
+									<span className="font-semibold">Continue with Google</span>
+								</LoadingButton>
+								<p className="text-muted-foreground text-center text-xs">
+									Secure authentication powered by Google
+								</p>
+							</div>
+						</>
+					)}
 				</div>
 
 				{/* Footer */}

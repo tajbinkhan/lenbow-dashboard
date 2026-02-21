@@ -1,7 +1,8 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { DollarSign, Shield, Trash2 } from "lucide-react";
+import { DollarSign, Mail, Shield, Trash2 } from "lucide-react";
+import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { toast } from "sonner";
 
@@ -33,7 +34,10 @@ import {
 	useUpdateUserCurrencyMutation
 } from "@/redux/APISlices/CurrencyAPISlice";
 import { useAppDispatch } from "@/redux/hooks";
-import { authenticationApiSlice } from "@/templates/Authentication/Login/Redux/AuthenticationAPISlice";
+import {
+	authenticationApiSlice,
+	useUpdateEmailPreferencesMutation
+} from "@/templates/Authentication/Login/Redux/AuthenticationAPISlice";
 import {
 	CurrencyUpdateSchema,
 	currencyUpdateSchema
@@ -47,8 +51,11 @@ interface SecuritySettingsProps {
 export default function SecuritySettings({ user, onDeleteAccount }: SecuritySettingsProps) {
 	const { data: currencies, isLoading: isCurrencyLoading } = useCurrencyListQuery();
 	const [updateCurrency, { isLoading: isUpdatingCurrency }] = useUpdateUserCurrencyMutation();
+	const [updateEmailPreferences, { isLoading: isUpdatingEmailPreferences }] =
+		useUpdateEmailPreferencesMutation();
 
 	const dispatch = useAppDispatch();
+	const [receiveEmails, setReceiveEmails] = useState(user.receiveTransactionEmails ?? true);
 
 	const form = useForm<CurrencyUpdateSchema>({
 		resolver: zodResolver(currencyUpdateSchema),
@@ -66,6 +73,20 @@ export default function SecuritySettings({ user, onDeleteAccount }: SecuritySett
 			})
 			.catch(error => {
 				toast.error(error?.data?.message || "Failed to update currency");
+			});
+	};
+
+	const handleEmailPreferencesToggle = (checked: boolean) => {
+		setReceiveEmails(checked);
+		updateEmailPreferences({ receiveTransactionEmails: checked })
+			.unwrap()
+			.then(() => {
+				toast.success(checked ? "Email notifications enabled" : "Email notifications disabled");
+				dispatch(authenticationApiSlice.util.invalidateTags(["Me"]));
+			})
+			.catch(error => {
+				setReceiveEmails(!checked); // Revert on error
+				toast.error(error?.data?.message || "Failed to update email preferences");
 			});
 	};
 
@@ -124,6 +145,24 @@ export default function SecuritySettings({ user, onDeleteAccount }: SecuritySett
 							)}
 						/>
 					</div>
+				</div>
+
+				{/* Email Notifications */}
+				<div className="border-border flex items-center justify-between border-b py-4">
+					<div className="flex items-center gap-3">
+						<Mail className="text-muted-foreground h-5 w-5" />
+						<div>
+							<p className="text-foreground font-medium">Transaction Email Notifications</p>
+							<p className="text-muted-foreground text-sm">
+								{receiveEmails ? "Receiving emails" : "Not receiving emails"}
+							</p>
+						</div>
+					</div>
+					<Switch
+						checked={receiveEmails}
+						onCheckedChange={handleEmailPreferencesToggle}
+						disabled={isUpdatingEmailPreferences}
+					/>
 				</div>
 
 				{/* 2FA Toggle */}

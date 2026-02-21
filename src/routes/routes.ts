@@ -20,11 +20,14 @@ export const route = {
 
 export const apiRoute = {
 	csrf: "/csrf",
+	login: "/auth/login",
 	googleLogin: "/auth/google",
 	me: "/auth/me",
 	logout: "/auth/logout",
 	updateProfile: "/auth/profile",
 	updateProfileImage: "/auth/profile/image",
+	updateEmailPreferences: "/auth/email-preferences",
+	unsubscribe: (token: string) => `/auth/unsubscribe/${token}`,
 	changePassword: "/auth/change-password",
 	toggle2FA: "/auth/2fa",
 	deleteAccount: "/auth/account",
@@ -49,4 +52,4 @@ const DEFAULT_LOGIN_REDIRECT = route.private.dashboard;
 
 const appRoutePrefix = process.env.NEXT_PUBLIC_FRONTEND_URL;
 
-export { appRoutePrefix, DEFAULT_LOGIN_REDIRECT };
+export { DEFAULT_LOGIN_REDIRECT, appRoutePrefix };
