@@ -85,14 +85,14 @@ export default function LoginTemplate() {
 						<p className="text-sm font-medium">🎭 Demo Mode Active</p>
 						<p className="text-muted-foreground mt-1 text-xs">
 							Want the real application?{" "}
-							<a
-								href="https://lenbow.vercel.app"
+							<Link
+								href={process.env.NEXT_PUBLIC_REAL_APPLICATION_URL || "#"}
 								target="_blank"
 								rel="noopener noreferrer"
 								className="hover:text-primary font-semibold underline underline-offset-2"
 							>
 								Visit here
-							</a>
+							</Link>
 						</p>
 					</div>
 				)}
