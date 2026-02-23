@@ -1,29 +1,40 @@
-import { useAppDispatch, useAppSelector } from "@/redux/hooks";
-import { useLogoutMutation } from "@/templates/Authentication/Login/Redux/AuthenticationAPISlice";
-import { logout, setLoggingOut } from "@/templates/Authentication/Login/Redux/AuthenticationSlice";
+"use client";
 
+import { toast } from "sonner";
+
+import { usePathname, useRouter } from "@/i18n/navigation";
+import { useAppDispatch, useAppSelector } from "@/redux/hooks";
+import { route } from "@/routes/routes";
+import { useLogoutMutation } from "@/templates/Authentication/Login/Redux/AuthenticationAPISlice";
+import { logout as logoutAction } from "@/templates/Authentication/Login/Redux/AuthenticationSlice";
+
+/**
+ * Custom hook to access authentication state from Redux store
+ * @returns Authentication state including user, isAuthenticated, isLoading, isLoggingOut, and handleLogout function
+ */
 export default function useAuth() {
-	const dispatch = useAppDispatch();
 	const { user, isAuthenticated, isLoading, isLoggingOut } = useAppSelector(
 		state => state.authReducer
 	);
 
+	const dispatch = useAppDispatch();
+	const router = useRouter();
+	const pathname = usePathname();
 	const [logoutMutation] = useLogoutMutation();
 
 	const handleLogout = async () => {
-		dispatch(setLoggingOut(true));
-
-		// Call logout API
 		await logoutMutation()
 			.unwrap()
 			.then(() => {
-				// Clear auth state but keep isLoggingOut true
-				// The UnifiedAuthProvider will handle the redirect
-				dispatch(logout());
+				// Clear Redux state
+				dispatch(logoutAction());
+				toast.success("Logged out successfully!");
+				// Redirect to login with current page as redirect URL
+				const redirectUrl = `${route.protected.login}?redirect=${encodeURIComponent(process.env.NEXT_PUBLIC_FRONTEND_URL + pathname)}`;
+				router.push(redirectUrl);
 			})
-			.catch(() => {
-				// Still clear local state even if API fails
-				dispatch(logout());
+			.catch(error => {
+				toast.error(error?.data?.message || "Failed to logout. Please try again.");
 			});
 	};
 

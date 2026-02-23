@@ -10,7 +10,7 @@ import { Label } from "@/components/ui/label";
 import { LoadingButton } from "@/components/ui/loading-button";
 
 import { useLoginMutation } from "./Redux/AuthenticationAPISlice";
-import useRedirect from "@/hooks/use-redirect";
+import { useRedirectUrl } from "@/hooks/use-redirect-url";
 import { Link } from "@/i18n/navigation";
 import { apiRoute, route } from "@/routes/routes";
 
@@ -31,7 +31,7 @@ export default function LoginTemplate() {
 	const [isPending, startTransition] = useTransition();
 	const [email, setEmail] = useState("");
 	const [password, setPassword] = useState("");
-	const { redirectUrl } = useRedirect();
+	const redirectUrl = useRedirectUrl();
 
 	const [login, { isLoading: isLoggingIn }] = useLoginMutation();
 
