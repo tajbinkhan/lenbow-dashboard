@@ -4,18 +4,17 @@ import { useUpdateProfileImageMutation } from "../../Login/Redux/AuthenticationA
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Camera } from "lucide-react";
 import { useRef, useState } from "react";
-import { useForm } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
 import { toast } from "sonner";
-import { z } from "zod";
 
 // Import User type
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { Field, FieldError } from "@/components/ui/field";
+import { Field, FieldError, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { LoadingButton } from "@/components/ui/loading-button";
+import { PhoneInput } from "@/components/ui/phone-input";
 import {
 	ResponsiveDialog,
 	ResponsiveDialogContent,
@@ -25,20 +24,16 @@ import {
 } from "@/components/ui/responsive-dialog";
 
 import { getUserInitials } from "@/core/helper";
-import { validateString } from "@/validators/commonRule";
-
-// Define the form schema
-const updateProfileSchema = z.object({
-	name: validateString("Full Name", { min: 2, max: 100 })
-});
-
-type UpdateProfileFormData = z.infer<typeof updateProfileSchema>;
+import {
+	UpdateProfileSchema,
+	updateProfileSchema
+} from "@/templates/Authentication/Profile/Validation/Profile.schema";
 
 interface UpdateProfileModalProps {
 	open: boolean;
 	onOpenChange: (open: boolean) => void;
 	user: User;
-	onSubmit: (data: { name: string }) => Promise<void>;
+	onSubmit: (data: UpdateProfileSchema) => Promise<void>;
 	isUpdating: boolean;
 }
 
@@ -54,15 +49,11 @@ export default function UpdateProfileModal({
 	const [selectedFile, setSelectedFile] = useState<File | null>(null);
 	const fileInputRef = useRef<HTMLInputElement>(null);
 
-	const {
-		register,
-		handleSubmit,
-		formState: { errors, isSubmitting },
-		reset
-	} = useForm<UpdateProfileFormData>({
+	const form = useForm<UpdateProfileSchema>({
 		resolver: zodResolver(updateProfileSchema),
 		defaultValues: {
-			name: user.name || ""
+			name: user.name || "",
+			phone: user.phone || ""
 		}
 	});
 
@@ -97,7 +88,7 @@ export default function UpdateProfileModal({
 		fileInputRef.current?.click();
 	};
 
-	const onFormSubmit = async (data: UpdateProfileFormData) => {
+	const onFormSubmit = async (data: UpdateProfileSchema) => {
 		try {
 			// Upload image first if selected
 			if (selectedFile) {
@@ -108,7 +99,7 @@ export default function UpdateProfileModal({
 			}
 
 			// Then update profile name
-			await onSubmit({ name: data.name });
+			await onSubmit(data);
 
 			// Reset form state
 			setImagePreview(null);
@@ -121,7 +112,7 @@ export default function UpdateProfileModal({
 
 	const handleOpenChange = (newOpen: boolean) => {
 		if (!newOpen) {
-			reset();
+			form.reset();
 			setImagePreview(null);
 			setSelectedFile(null);
 		}
@@ -139,7 +130,7 @@ export default function UpdateProfileModal({
 						Update your profile information and avatar
 					</ResponsiveDialogDescription>
 				</ResponsiveDialogHeader>
-				<form onSubmit={handleSubmit(onFormSubmit)} className="space-y-4 sm:space-y-6">
+				<form onSubmit={form.handleSubmit(onFormSubmit)} className="space-y-4 sm:space-y-6">
 					{/* Hidden file input */}
 					<input
 						ref={fileInputRef}
@@ -147,7 +138,7 @@ export default function UpdateProfileModal({
 						accept="image/png,image/jpeg,image/webp"
 						onChange={handleImageSelect}
 						className="hidden"
-						disabled={isUploadingImage || isUpdating || isSubmitting}
+						disabled={isUploadingImage || isUpdating || form.formState.isSubmitting}
 					/>
 
 					{/* Avatar with click to upload */}
@@ -156,7 +147,7 @@ export default function UpdateProfileModal({
 							type="button"
 							onClick={handleAvatarClick}
 							className="group relative cursor-pointer disabled:cursor-not-allowed disabled:opacity-60"
-							disabled={isUploadingImage || isUpdating || isSubmitting}
+							disabled={isUploadingImage || isUpdating || form.formState.isSubmitting}
 						>
 							<Avatar className="h-20 w-20 sm:h-24 sm:w-24">
 								<AvatarImage
@@ -174,26 +165,48 @@ export default function UpdateProfileModal({
 						</p>
 					</div>
 
-					<Field data-invalid={!!errors.name}>
-						<Label htmlFor="full-name" className="text-sm sm:text-base">
-							Full Name
-						</Label>
-						<Input
-							id="full-name"
-							{...register("name")}
-							placeholder="Enter your full name"
-							className="text-sm sm:text-base"
-							disabled={isUploadingImage || isUpdating || isSubmitting}
+					<FieldGroup>
+						<Controller
+							name="name"
+							control={form.control}
+							render={({ field, fieldState }) => (
+								<Field data-invalid={fieldState.invalid}>
+									<FieldLabel htmlFor={field.name}>Full Name</FieldLabel>
+									<Input
+										{...field}
+										id={field.name}
+										aria-invalid={fieldState.invalid}
+										placeholder="Enter your full name"
+									/>
+									{fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+								</Field>
+							)}
 						/>
-						<FieldError errors={errors.name ? [errors.name] : []} />
-					</Field>
+
+						<Controller
+							name="phone"
+							control={form.control}
+							render={({ field, fieldState }) => (
+								<Field data-invalid={fieldState.invalid}>
+									<FieldLabel htmlFor={field.name}>Phone Number</FieldLabel>
+									<PhoneInput
+										{...field}
+										id={field.name}
+										aria-invalid={fieldState.invalid}
+										placeholder="Enter your phone number"
+									/>
+									{fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+								</Field>
+							)}
+						/>
+					</FieldGroup>
 
 					<div className="flex flex-col-reverse gap-2 pt-2 sm:flex-row sm:justify-end sm:gap-3 sm:pt-4">
 						<Button
 							type="button"
 							variant="outline"
 							onClick={() => handleOpenChange(false)}
-							disabled={isSubmitting || isUploadingImage || isUpdating}
+							disabled={form.formState.isSubmitting || isUploadingImage || isUpdating}
 							className="w-full text-sm sm:w-auto sm:text-base"
 						>
 							Cancel
@@ -201,7 +214,7 @@ export default function UpdateProfileModal({
 						<LoadingButton
 							type="submit"
 							className="w-full text-sm sm:w-auto sm:text-base"
-							isLoading={isSubmitting || isUploadingImage || isUpdating}
+							isLoading={form.formState.isSubmitting || isUploadingImage || isUpdating}
 							loadingText="Saving..."
 						>
 							Save Changes

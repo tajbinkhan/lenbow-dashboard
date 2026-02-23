@@ -11,6 +11,7 @@ import ProfileHeader from "@/templates/Authentication/Profile/Components/Profile
 import ProfileInfo from "@/templates/Authentication/Profile/Components/ProfileInfo";
 import SecuritySettings from "@/templates/Authentication/Profile/Components/SecuritySettings";
 import UpdateProfileModal from "@/templates/Authentication/Profile/Components/UpdateProfileModal";
+import { UpdateProfileSchema } from "@/templates/Authentication/Profile/Validation/Profile.schema";
 
 export default function ProfileTemplate() {
 	const [isEditingProfile, setIsEditingProfile] = useState(false);
@@ -19,8 +20,8 @@ export default function ProfileTemplate() {
 
 	const [updateProfile, { isLoading: isUpdatingProfile }] = useUpdateProfileMutation();
 
-	const handleEditProfile = async (data: { name: string }) => {
-		await updateProfile({ name: data.name })
+	const handleEditProfile = async (data: UpdateProfileSchema) => {
+		await updateProfile(data)
 			.unwrap()
 			.then(() => {
 				// Optionally show a success message

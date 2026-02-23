@@ -7,6 +7,7 @@ interface User {
 	image: string | null;
 	is2faEnabled: boolean | null;
 	currencyCode: string;
+	phone: string | null;
 	receiveTransactionEmails: boolean;
 	createdAt: string;
 	updatedAt: string;
