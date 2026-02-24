@@ -11,7 +11,7 @@ import { LoadingButton } from "@/components/ui/loading-button";
 
 import { useLoginMutation } from "./Redux/AuthenticationAPISlice";
 import useRedirect from "@/hooks/use-redirect";
-import { Link } from "@/i18n/navigation";
+import { Link, useRouter } from "@/i18n/navigation";
 import { apiRoute, route } from "@/routes/routes";
 
 const isDemoMode = process.env.NEXT_PUBLIC_APPLICATION_TYPE === "demo";
@@ -33,6 +33,8 @@ export default function LoginTemplate() {
 	const [password, setPassword] = useState("");
 	const { redirectUrl } = useRedirect();
 
+	const router = useRouter();
+
 	const [login, { isLoading: isLoggingIn }] = useLoginMutation();
 
 	const googleOauthRedirectUrl = redirectUrl
@@ -53,7 +55,7 @@ export default function LoginTemplate() {
 			toast.success(response.message || "Login successful!");
 
 			// Redirect after successful login
-			window.location.href = redirectUrl || route.private.dashboard;
+			router.push(redirectUrl || route.private.dashboard);
 		} catch (error: any) {
 			toast.error(error?.data?.message || "Login failed. Please check your credentials.");
 		}
