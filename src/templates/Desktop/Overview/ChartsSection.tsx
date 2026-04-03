@@ -141,9 +141,14 @@ export default function ChartsSection({ chartData, isLoading }: ChartsSectionPro
 										border: "1px solid hsl(var(--border))",
 										borderRadius: "6px"
 									}}
-									formatter={(value: number | undefined) =>
-										value ? `$${value.toFixed(2)}` : "$0.00"
-									}
+									formatter={value => {
+										const parsedValue =
+											typeof value === "number"
+												? value
+												: Number(Array.isArray(value) ? value[0] : value);
+
+										return Number.isFinite(parsedValue) ? `$${parsedValue.toFixed(2)}` : "$0.00";
+									}}
 								/>
 								<Legend />
 								<Bar dataKey="borrowed" fill="#ef4444" name="Borrowed" radius={[4, 4, 0, 0]} />

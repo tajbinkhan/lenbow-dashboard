@@ -5,6 +5,9 @@ import { cn } from "@/lib/utils";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 
+import { Link } from "@/i18n/navigation";
+import { route } from "@/routes/routes";
+
 interface MetricsCardsMobileProps {
 	metrics: MetricsData;
 	isLoading?: boolean;
@@ -15,10 +18,18 @@ interface MetricCardProps {
 	value: string | number;
 	icon: React.ReactNode;
 	description?: string;
+	href?: string;
 	variant?: "default" | "warning" | "danger" | "success";
 }
 
-function MetricCard({ title, value, icon, description, variant = "default" }: MetricCardProps) {
+function MetricCard({
+	title,
+	value,
+	icon,
+	description,
+	href,
+	variant = "default"
+}: MetricCardProps) {
 	const variantStyles = {
 		default: "bg-primary/10 text-primary",
 		warning: "bg-amber-500/10 text-amber-600 dark:text-amber-500",
@@ -26,8 +37,8 @@ function MetricCard({ title, value, icon, description, variant = "default" }: Me
 		success: "bg-emerald-500/10 text-emerald-600 dark:text-emerald-500"
 	};
 
-	return (
-		<Card>
+	const card = (
+		<Card className={cn(href ? "cursor-pointer" : "")}>
 			<CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
 				<CardTitle className="text-xs font-medium">{title}</CardTitle>
 				<div className={cn("rounded-lg p-1.5", variantStyles[variant])}>{icon}</div>
@@ -37,6 +48,17 @@ function MetricCard({ title, value, icon, description, variant = "default" }: Me
 				{description && <p className="text-muted-foreground mt-0.5 text-xs">{description}</p>}
 			</CardContent>
 		</Card>
+	);
+
+	if (!href) return card;
+
+	return (
+		<Link
+			href={href}
+			className="focus-visible:ring-ring block rounded-xl focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none"
+		>
+			{card}
+		</Link>
 	);
 }
 
@@ -69,6 +91,12 @@ export default function MetricsCardsMobile({ metrics, isLoading }: MetricsCardsM
 	const hasOverdue = metrics.overdueCount > 0;
 	const hasPendingRequests = metrics.pendingRequests > 0;
 	const hasRepaymentRequests = metrics.repaymentRequests > 0;
+	const overdueRoute =
+		metrics.overdueBorrowed > 0
+			? route.private.borrow
+			: metrics.overdueLent > 0
+				? route.private.lend
+				: route.private.history;
 
 	return (
 		<div className="grid grid-cols-2 gap-3">
@@ -76,6 +104,7 @@ export default function MetricsCardsMobile({ metrics, isLoading }: MetricsCardsM
 				title="Borrowed"
 				value={metrics.totalBorrowed.toFixed(0)}
 				icon={<DollarSign className="h-3.5 w-3.5" />}
+				href={route.private.borrow}
 				description={
 					metrics.overdueBorrowed > 0 ? `${metrics.overdueBorrowed} overdue` : "Active amount"
 				}
@@ -85,6 +114,7 @@ export default function MetricsCardsMobile({ metrics, isLoading }: MetricsCardsM
 				title="Lent"
 				value={metrics.totalLent.toFixed(0)}
 				icon={<TrendingUp className="h-3.5 w-3.5" />}
+				href={route.private.lend}
 				description={metrics.overdueLent > 0 ? `${metrics.overdueLent} overdue` : "Active amount"}
 				variant={metrics.overdueLent > 0 ? "warning" : "success"}
 			/>
@@ -92,6 +122,7 @@ export default function MetricsCardsMobile({ metrics, isLoading }: MetricsCardsM
 				title="Pending"
 				value={metrics.pendingRequests}
 				icon={<Clock className="h-3.5 w-3.5" />}
+				href={route.private.requests}
 				description={hasPendingRequests ? "Need approval" : "No requests"}
 				variant={hasPendingRequests ? "warning" : "default"}
 			/>
@@ -99,6 +130,7 @@ export default function MetricsCardsMobile({ metrics, isLoading }: MetricsCardsM
 				title="Overdue"
 				value={metrics.overdueCount}
 				icon={<AlertTriangle className="h-3.5 w-3.5" />}
+				href={overdueRoute}
 				description={hasOverdue ? "Action needed" : "All on track"}
 				variant={hasOverdue ? "danger" : "success"}
 			/>
@@ -106,6 +138,7 @@ export default function MetricsCardsMobile({ metrics, isLoading }: MetricsCardsM
 				title="Repayments"
 				value={metrics.repaymentRequests}
 				icon={<AlertCircle className="h-3.5 w-3.5" />}
+				href={route.private.lend}
 				description={hasRepaymentRequests ? "To review" : "None pending"}
 				variant={hasRepaymentRequests ? "warning" : "default"}
 			/>
@@ -113,6 +146,7 @@ export default function MetricsCardsMobile({ metrics, isLoading }: MetricsCardsM
 				title="Contacts"
 				value={metrics.totalContacts}
 				icon={<Users className="h-3.5 w-3.5" />}
+				href={route.private.people}
 				description="Connected"
 			/>
 		</div>

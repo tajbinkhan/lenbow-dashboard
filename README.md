@@ -14,6 +14,8 @@ authentication, internationalization, and a beautiful UI powered by shadcn/ui.
 - 📈 **Charts & Visualizations** - Data visualization with Recharts
 - 🔄 **State Management** - Redux Toolkit with RTK Query for API calls
 - 📱 **Responsive Design** - Desktop and mobile-friendly layouts
+- 💳 **Direct Lender Settlement** - Lenders can settle loans directly with partial or full repayment
+  from desktop and mobile views
 - 🚀 **React Server Components** - Leveraging Next.js 16 App Router
 - ✅ **Form Validation** - Type-safe form handling with React Hook Form and Zod
 - 🎯 **Type Safety** - Full TypeScript support
@@ -162,6 +164,13 @@ Built with shadcn/ui components including:
 - Redux Toolkit for global state
 - RTK Query for API calls with caching
 - Type-safe API slices
+
+### Repayment Workflows
+
+- Borrowers can continue using the existing repayment request flow.
+- Lenders can now settle accepted or partially paid loans directly:
+  - Partial settlement keeps the loan active with `partially_paid` status.
+  - Full settlement closes the loan with `completed` status.
 
 ## 🎨 Customization
 
