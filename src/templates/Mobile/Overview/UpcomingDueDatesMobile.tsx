@@ -8,6 +8,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Skeleton } from "@/components/ui/skeleton";
 
 import { getUserInitials } from "@/core/helper";
+import { Link } from "@/i18n/navigation";
+import { route } from "@/routes/routes";
 
 interface UpcomingDueDatesMobileProps {
 	upcomingDueDates: UpcomingDueDate[];
@@ -46,54 +48,71 @@ function DueDateItem({
 	const config = urgencyConfig[item.urgency];
 	const Icon = config.icon;
 
+	const redirectLink = (type: "lend" | "borrow", status: TransactionStatusType, id: string) => {
+		if (status === "pending") {
+			return `${route.private.requests}?search=${id}`;
+		} else if (status === "rejected" || status === "completed") {
+			return `${route.private.history}?search=${id}`;
+		} else {
+			return `${type === "lend" ? route.private.lend : route.private.borrow}?search=${id}`;
+		}
+	};
+
 	return (
-		<div
-			className={cn(
-				"active:bg-muted/50 flex cursor-pointer items-center gap-3 rounded-lg border p-3 transition-colors duration-200",
-				item.urgency === "high" && "border-destructive/50 bg-destructive/5"
-			)}
-			onClick={() => onItemClick?.(item)}
+		<Link
+			href={redirectLink(item.type, item.status, item.id)}
+			className="focus-visible:ring-ring block rounded-lg focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none"
 		>
-			<div className={cn("shrink-0 rounded-full p-1.5", config.className)}>
-				<Icon className="h-3.5 w-3.5" />
-			</div>
+			<div
+				className={cn(
+					"active:bg-muted/50 flex cursor-pointer items-center gap-3 rounded-lg border p-3 transition-colors duration-200",
+					item.urgency === "high" && "border-destructive/50 bg-destructive/5"
+				)}
+				onClick={() => onItemClick?.(item)}
+			>
+				<div className={cn("shrink-0 rounded-full p-1.5", config.className)}>
+					<Icon className="h-3.5 w-3.5" />
+				</div>
 
-			<Avatar className="h-10 w-10 shrink-0">
-				<AvatarImage src={item.otherParty.image || ""} alt={item.otherParty.name || ""} />
-				<AvatarFallback className="text-xs">
-					{getUserInitials(item.otherParty.name || null)}
-				</AvatarFallback>
-			</Avatar>
+				<Avatar className="h-10 w-10 shrink-0">
+					<AvatarImage src={item.otherParty.image || ""} alt={item.otherParty.name || ""} />
+					<AvatarFallback className="text-xs">
+						{getUserInitials(item.otherParty.name || null)}
+					</AvatarFallback>
+				</Avatar>
 
-			<div className="min-w-0 flex-1">
-				<p className="truncate text-sm font-medium">
-					{item.otherParty.name || item.otherParty.email}
-				</p>
-				<div className="mt-0.5 flex items-center gap-2">
-					<Badge variant={config.variant} className={cn("text-xs", config.className)}>
-						{config.label}
-					</Badge>
-					<p className="text-muted-foreground text-xs">
-						{item.daysUntilDue === 0
-							? "Today"
-							: item.daysUntilDue === 1
-								? "Tomorrow"
-								: `${item.daysUntilDue}d`}
+				<div className="min-w-0 flex-1">
+					<p className="truncate text-sm font-medium">
+						{item.otherParty.name || item.otherParty.email}
 					</p>
+					<div className="mt-0.5 flex items-center gap-2">
+						<Badge variant={config.variant} className={cn("text-xs", config.className)}>
+							{config.label}
+						</Badge>
+						<p className="text-muted-foreground text-xs">
+							{item.daysUntilDue === 0
+								? "Today"
+								: item.daysUntilDue === 1
+									? "Tomorrow"
+									: `${item.daysUntilDue}d`}
+						</p>
+					</div>
+				</div>
+
+				<div className="flex shrink-0 items-center gap-2">
+					<div className="text-right">
+						<p className="text-sm font-semibold">
+							{item.currency.symbol}
+							{item.remainingAmount.toFixed(0)}
+						</p>
+						<p className="text-muted-foreground text-xs">
+							{item.type === "borrow" ? "Owe" : "Due"}
+						</p>
+					</div>
+					<ChevronRight className="text-muted-foreground h-4 w-4" />
 				</div>
 			</div>
-
-			<div className="flex shrink-0 items-center gap-2">
-				<div className="text-right">
-					<p className="text-sm font-semibold">
-						{item.currency.symbol}
-						{item.remainingAmount.toFixed(0)}
-					</p>
-					<p className="text-muted-foreground text-xs">{item.type === "borrow" ? "Owe" : "Due"}</p>
-				</div>
-				<ChevronRight className="text-muted-foreground h-4 w-4" />
-			</div>
-		</div>
+		</Link>
 	);
 }
 

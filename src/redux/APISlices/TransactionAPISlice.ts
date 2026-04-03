@@ -2,6 +2,7 @@ import { createApi } from "@reduxjs/toolkit/query/react";
 
 import { baseQueryWithCSRF } from "@/lib/rtk-base-query";
 
+import { overviewApiSlice } from "@/redux/APISlices/OverviewAPISlice";
 import { apiRoute } from "@/routes/routes";
 import {
 	CreateRequestsSchema,
@@ -126,6 +127,10 @@ const undoOptimisticPatches = (patches: OptimisticPatch[]) => {
 	}
 };
 
+const invalidateOverviewCache = (dispatch: any) => {
+	dispatch(overviewApiSlice.util.invalidateTags(["Overview"]));
+};
+
 export const transactionApiSlice = createApi({
 	reducerPath: "transactionApiReducer",
 	baseQuery: baseQueryWithCSRF,
@@ -152,6 +157,14 @@ export const transactionApiSlice = createApi({
 				method: "POST",
 				body
 			}),
+			onQueryStarted: async (_, { dispatch, queryFulfilled }) => {
+				try {
+					await queryFulfilled;
+					invalidateOverviewCache(dispatch);
+				} catch {
+					// no-op
+				}
+			},
 			invalidatesTags: ["Transaction"]
 		}),
 
@@ -185,6 +198,7 @@ export const transactionApiSlice = createApi({
 
 				try {
 					await queryFulfilled;
+					invalidateOverviewCache(dispatch);
 				} catch {
 					undoOptimisticPatches(optimisticPatches);
 				}
@@ -278,6 +292,7 @@ export const transactionApiSlice = createApi({
 
 				try {
 					await queryFulfilled;
+					invalidateOverviewCache(dispatch);
 				} catch {
 					undoOptimisticPatches(optimisticPatches);
 				}
@@ -303,6 +318,7 @@ export const transactionApiSlice = createApi({
 
 				try {
 					await queryFulfilled;
+					invalidateOverviewCache(dispatch);
 				} catch {
 					undoOptimisticPatches(optimisticPatches);
 				}
@@ -379,6 +395,7 @@ export const transactionApiSlice = createApi({
 
 				try {
 					await queryFulfilled;
+					invalidateOverviewCache(dispatch);
 				} catch {
 					undoOptimisticPatches(optimisticPatches);
 				}
@@ -410,6 +427,7 @@ export const transactionApiSlice = createApi({
 
 				try {
 					await queryFulfilled;
+					invalidateOverviewCache(dispatch);
 				} catch {
 					undoOptimisticPatches(optimisticPatches);
 				}
@@ -464,6 +482,7 @@ export const transactionApiSlice = createApi({
 
 				try {
 					await queryFulfilled;
+					invalidateOverviewCache(dispatch);
 				} catch {
 					undoOptimisticPatches(optimisticPatches);
 				}

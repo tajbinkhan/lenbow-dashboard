@@ -10,6 +10,8 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Skeleton } from "@/components/ui/skeleton";
 
 import { getUserInitials } from "@/core/helper";
+import { Link } from "@/i18n/navigation";
+import { route } from "@/routes/routes";
 
 interface UpcomingDueDatesSectionProps {
 	upcomingDueDates: UpcomingDueDate[];
@@ -48,68 +50,83 @@ function DueDateItem({
 	const config = urgencyConfig[item.urgency];
 	const Icon = config.icon;
 
+	const redirectLink = (type: "lend" | "borrow", status: TransactionStatusType, id: string) => {
+		if (status === "pending") {
+			return `${route.private.requests}?search=${id}`;
+		} else if (status === "rejected" || status === "completed") {
+			return `${route.private.history}?search=${id}`;
+		} else {
+			return `${type === "lend" ? route.private.lend : route.private.borrow}?search=${id}`;
+		}
+	};
+
 	return (
-		<div
-			className={cn(
-				"hover:bg-muted/50 flex cursor-pointer items-start gap-4 rounded-lg border p-4 transition-colors duration-200",
-				item.urgency === "high" && "border-destructive/50 bg-destructive/5"
-			)}
-			onClick={() => onItemClick?.(item)}
+		<Link
+			href={redirectLink(item.type, item.status, item.id)}
+			className="focus-visible:ring-ring block rounded-lg focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none"
 		>
-			<div className={cn("mt-1 rounded-full p-2", config.className)}>
-				<Icon className="h-4 w-4" />
-			</div>
+			<div
+				className={cn(
+					"hover:bg-muted/50 flex cursor-pointer items-start gap-4 rounded-lg border p-4 transition-colors duration-200",
+					item.urgency === "high" && "border-destructive/50 bg-destructive/5"
+				)}
+				onClick={() => onItemClick?.(item)}
+			>
+				<div className={cn("mt-1 rounded-full p-2", config.className)}>
+					<Icon className="h-4 w-4" />
+				</div>
 
-			<div className="flex-1 space-y-2">
-				<div className="flex items-start justify-between gap-4">
-					<div className="flex-1">
-						<div className="mb-1 flex items-center gap-2">
-							<Badge variant={config.variant}>{config.label} Priority</Badge>
-							<Badge variant="outline" className="text-xs">
-								{item.type === "borrow" ? "You Owe" : "They Owe"}
-							</Badge>
+				<div className="flex-1 space-y-2">
+					<div className="flex items-start justify-between gap-4">
+						<div className="flex-1">
+							<div className="mb-1 flex items-center gap-2">
+								<Badge variant={config.variant}>{config.label} Priority</Badge>
+								<Badge variant="outline" className="text-xs">
+									{item.type === "borrow" ? "You Owe" : "They Owe"}
+								</Badge>
+							</div>
+							<p className="text-muted-foreground text-xs">
+								{item.daysUntilDue === 0
+									? "Due today"
+									: item.daysUntilDue === 1
+										? "Due tomorrow"
+										: `Due in ${item.daysUntilDue} days`}
+							</p>
 						</div>
-						<p className="text-muted-foreground text-xs">
-							{item.daysUntilDue === 0
-								? "Due today"
-								: item.daysUntilDue === 1
-									? "Due tomorrow"
-									: `Due in ${item.daysUntilDue} days`}
-						</p>
+						<div className="text-right">
+							<p className="text-lg font-semibold">
+								{item.currency.symbol}
+								{item.remainingAmount.toFixed(2)}
+							</p>
+							<p className="text-muted-foreground text-xs">
+								of {item.currency.symbol}
+								{item.amount.toFixed(2)}
+							</p>
+						</div>
 					</div>
-					<div className="text-right">
-						<p className="text-lg font-semibold">
-							{item.currency.symbol}
-							{item.remainingAmount.toFixed(2)}
-						</p>
-						<p className="text-muted-foreground text-xs">
-							of {item.currency.symbol}
-							{item.amount.toFixed(2)}
-						</p>
-					</div>
-				</div>
 
-				<div className="flex items-center gap-2">
-					<Avatar className="h-8 w-8">
-						<AvatarImage src={item.otherParty.image || ""} alt={item.otherParty.name || ""} />
-						<AvatarFallback className="text-xs">
-							{getUserInitials(item.otherParty.name || null)}
-						</AvatarFallback>
-					</Avatar>
-					<div className="flex-1">
-						<p className="text-sm font-medium">{item.otherParty.name || item.otherParty.email}</p>
-						{item.otherParty.name && (
-							<p className="text-muted-foreground text-xs">{item.otherParty.email}</p>
-						)}
+					<div className="flex items-center gap-2">
+						<Avatar className="h-8 w-8">
+							<AvatarImage src={item.otherParty.image || ""} alt={item.otherParty.name || ""} />
+							<AvatarFallback className="text-xs">
+								{getUserInitials(item.otherParty.name || null)}
+							</AvatarFallback>
+						</Avatar>
+						<div className="flex-1">
+							<p className="text-sm font-medium">{item.otherParty.name || item.otherParty.email}</p>
+							{item.otherParty.name && (
+								<p className="text-muted-foreground text-xs">{item.otherParty.email}</p>
+							)}
+						</div>
 					</div>
-				</div>
 
-				<div className="text-muted-foreground flex items-center gap-2">
-					<Calendar className="h-3 w-3" />
-					<p className="text-xs">Due: {format(new Date(item.dueDate), "MMM dd, yyyy")}</p>
+					<div className="text-muted-foreground flex items-center gap-2">
+						<Calendar className="h-3 w-3" />
+						<p className="text-xs">Due: {format(new Date(item.dueDate), "MMM dd, yyyy")}</p>
+					</div>
 				</div>
 			</div>
-		</div>
+		</Link>
 	);
 }
 
