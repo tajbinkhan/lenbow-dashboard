@@ -142,7 +142,7 @@ export function DataTableRowActions<TData>({ row }: DataTableRowActionsProps<TDa
 				</AlertDialogContent>
 			</AlertDialog>
 
-			<div className="flex gap-2 opacity-0 transition-opacity group-hover:opacity-100">
+			<div className="flex gap-2">
 				<Tooltip>
 					<TooltipTrigger asChild>
 						<ExtendedButton

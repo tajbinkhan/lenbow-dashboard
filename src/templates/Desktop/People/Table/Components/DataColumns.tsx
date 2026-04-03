@@ -107,6 +107,30 @@ export default function DataColumns() {
 			pagination={pagination}
 			selectedCount={selectedIds.length}
 			DataTableToolbar={DataTableToolbar}
+			rowDetailsTitle="Contact Details"
+			rowDetailsDescription="Complete contact information"
+			renderRowDetails={row => (
+				<div className="grid gap-3 px-4 pb-2 md:grid-cols-2 md:px-0">
+					<div className="space-y-1 rounded-md border p-3">
+						<p className="text-muted-foreground text-xs">Name</p>
+						<p className="text-sm font-medium">{row.name || "Unknown"}</p>
+					</div>
+					<div className="space-y-1 rounded-md border p-3">
+						<p className="text-muted-foreground text-xs">Email</p>
+						<p className="text-sm font-medium wrap-break-word">{row.email || "N/A"}</p>
+					</div>
+					<div className="space-y-1 rounded-md border p-3">
+						<p className="text-muted-foreground text-xs">Phone</p>
+						<p className="text-sm font-medium">{row.phone || "N/A"}</p>
+					</div>
+					<div className="space-y-1 rounded-md border p-3">
+						<p className="text-muted-foreground text-xs">Connected At</p>
+						<p className="text-sm font-medium">
+							{format(new Date(row.connectedAt), "MMM dd, yyyy")}
+						</p>
+					</div>
+				</div>
+			)}
 		/>
 	);
 }

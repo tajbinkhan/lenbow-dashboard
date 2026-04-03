@@ -4,7 +4,8 @@ import { ColumnDef } from "@tanstack/react-table";
 import { format } from "date-fns";
 import { ArrowDownLeft, ArrowUpRight } from "lucide-react";
 
-import { DescriptionModal } from "@/components/custom-ui/description-modal";
+import { LoanDetailsContent } from "@/components/custom-ui/loan-details-content";
+import { TableDescriptionCell } from "@/components/custom-ui/table-description-cell";
 import { DataTable } from "@/components/table/data-table";
 import { DataTableColumnHeader } from "@/components/table/data-table-column-header";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -211,20 +212,7 @@ export default function DataColumns() {
 		{
 			accessorKey: "description",
 			header: "Description",
-			cell: ({ row }) => {
-				const description = row.original.description;
-
-				if (!description) {
-					return <span className="text-muted-foreground text-xs">No description</span>;
-				}
-
-				return (
-					<div className="max-w-50">
-						<p className="line-clamp-1 text-sm">{description}</p>
-						{description.length > 350 && <DescriptionModal description={description} />}
-					</div>
-				);
-			},
+			cell: ({ row }) => <TableDescriptionCell description={row.original.description} />,
 			enableSorting: false
 		}
 	];
@@ -238,6 +226,9 @@ export default function DataColumns() {
 			pagination={pagination}
 			selectedCount={selectedIds.length}
 			DataTableToolbar={DataTableToolbar}
+			rowDetailsTitle="Loan Details"
+			rowDetailsDescription="Complete loan information"
+			renderRowDetails={row => <LoanDetailsContent data={row} />}
 		/>
 	);
 }
