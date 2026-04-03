@@ -236,7 +236,7 @@ export default function UpcomingDueDatesSection({
 			</CardHeader>
 			<CardContent>
 				<ScrollArea className="h-125 pr-4">
-					<div className="space-y-4">
+					<div className="flex flex-col gap-4">
 						{sortedDueDates.map(item => (
 							<DueDateItem key={item.id} item={item} onItemClick={onItemClick} />
 						))}
