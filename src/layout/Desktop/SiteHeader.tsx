@@ -1,3 +1,4 @@
+import PWAInstallButton from "@/components/pwa/PWAInstallButton";
 import { Separator } from "@/components/ui/separator";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import ThemeToggle from "@/components/ui/theme-toggle";
@@ -14,7 +15,8 @@ export function SiteHeader() {
 					className="mx-2 self-center! data-[orientation=vertical]:h-4"
 				/>
 				<AppBreadcrumb />
-				<div className="mt-2 ml-auto">
+				<div className="mt-2 ml-auto flex items-center gap-2">
+					<PWAInstallButton />
 					<ThemeToggle />
 				</div>
 			</div>

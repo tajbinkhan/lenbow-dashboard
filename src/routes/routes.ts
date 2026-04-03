@@ -1,5 +1,7 @@
 export const route = {
-	public: {},
+	public: {
+		offline: "/offline"
+	},
 	private: {
 		dashboard: "/",
 		profile: "/profile",

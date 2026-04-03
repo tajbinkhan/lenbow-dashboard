@@ -2,7 +2,6 @@ import type { NextConfig } from "next";
 import createNextIntlPlugin from "next-intl/plugin";
 
 const nextConfig: NextConfig = {
-	/* config options here */
 	reactCompiler: true,
 	devIndicators: false,
 	images: {
@@ -12,6 +11,23 @@ const nextConfig: NextConfig = {
 				hostname: "res.cloudinary.com"
 			}
 		]
+	},
+	async headers() {
+		return [
+			{
+				source: "/sw.js",
+				headers: [
+					{
+						key: "Cache-Control",
+						value: "no-cache, no-store, must-revalidate"
+					},
+					{
+						key: "Service-Worker-Allowed",
+						value: "/"
+					}
+				]
+			}
+		];
 	}
 };
 
