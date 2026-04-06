@@ -56,12 +56,12 @@ export default function OverviewTemplate() {
 	}
 
 	return (
-		<div className="container mx-auto space-y-8">
+		<div className="container mx-auto space-y-6 px-4 sm:px-6 lg:space-y-8 lg:px-8">
 			{/* Header */}
 			<div className="flex items-start justify-between">
 				<div>
-					<h1 className="gradient-text text-3xl font-bold tracking-tight">Dashboard</h1>
-					<p className="text-muted-foreground mt-1">
+					<h1 className="gradient-text text-2xl font-bold tracking-tight sm:text-3xl">Dashboard</h1>
+					<p className="text-muted-foreground mt-1 text-sm sm:text-base">
 						Welcome back! Here&apos;s an overview of your loan activities.
 					</p>
 				</div>
@@ -71,7 +71,7 @@ export default function OverviewTemplate() {
 			<MetricsCards metrics={overviewData?.metrics!} isLoading={isLoading} />
 
 			{/* Action Required & Upcoming Due Dates */}
-			<div className="grid gap-6 lg:grid-cols-2">
+			<div className="grid gap-4 lg:grid-cols-2 lg:gap-6">
 				<ActionRequiredSection
 					actions={overviewData?.actionRequired || []}
 					isLoading={isLoading}

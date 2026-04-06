@@ -43,7 +43,7 @@ export default function OverviewTemplate() {
 			) : !isLoading && !hasData ? (
 				<EmptyStateMobile />
 			) : (
-				<div className="flex-1 space-y-4 px-4 py-6">
+				<div className="flex-1 space-y-4 px-3 py-4 sm:space-y-5 sm:px-4 sm:py-6">
 					{/* Metrics */}
 					<MetricsCardsMobile metrics={overviewData?.metrics!} isLoading={isLoading} />
 
