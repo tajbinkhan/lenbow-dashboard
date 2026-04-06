@@ -72,20 +72,20 @@ function ActionItem({
 		<Link href={redirectLink(transactionStatusType, action.status, action.transactionId)}>
 			<div
 				className={cn(
-					"hover:bg-muted/60 flex cursor-pointer items-start gap-4 rounded-lg border p-4 transition-all duration-200 hover:shadow-sm",
+					"hover:bg-muted/60 flex cursor-pointer items-start gap-4 rounded-xl border p-4 transition-all duration-200 hover:shadow-md active:scale-[0.99]",
 					action.type === "overdue_loan" &&
-						"border-destructive/50 bg-destructive/5 hover:bg-destructive/10"
+						"border-[var(--color-danger-border,oklch(0.58_0.22_27_/_0.30))] bg-[var(--color-danger-bg,oklch(0.58_0.22_27_/_0.05))] hover:bg-[oklch(0.58_0.22_27_/_0.10)] dark:border-[oklch(0.704_0.191_22.216_/_0.30)] dark:bg-[oklch(0.704_0.191_22.216_/_0.10)] dark:hover:bg-[oklch(0.704_0.191_22.216_/_0.15)]"
 				)}
 				onClick={() => onActionClick?.(action)}
 			>
 				<div
 					className={cn(
-						"mt-1 rounded-full p-2",
+						"mt-1 rounded-full p-2 shadow-sm",
 						action.type === "overdue_loan"
-							? "bg-destructive/10 text-destructive"
+							? "bg-[var(--color-danger-bg,oklch(0.58_0.22_27_/_0.10))] text-[var(--color-danger-text,oklch(0.58_0.22_27))] dark:bg-[oklch(0.704_0.191_22.216_/_0.20)] dark:text-[oklch(0.75_0.18_27)]"
 							: action.type === "pending_request"
-								? "bg-amber-500/10 text-amber-600 dark:text-amber-500"
-								: "bg-primary/10 text-primary"
+								? "bg-[var(--color-warning-bg,oklch(0.76_0.16_72_/_0.10))] text-[var(--color-warning-text,oklch(0.60_0.14_72))] dark:bg-[oklch(0.80_0.16_72_/_0.20)] dark:text-[oklch(0.85_0.14_72)]"
+								: "bg-primary/10 text-primary dark:bg-primary/15"
 					)}
 				>
 					<Icon className="h-4 w-4" />

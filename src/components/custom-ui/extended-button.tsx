@@ -5,27 +5,27 @@ import { cn } from "@/lib/utils";
 
 import { Button, buttonVariants } from "@/components/ui/button";
 
-const extendedButtonVariants = cva("", {
+const extendedButtonVariants = cva("transition-all duration-200", {
 	variants: {
 		variant: {
 			success:
-				"bg-emerald-500 text-white hover:bg-emerald-600 focus-visible:ring-emerald-500/20 focus-visible:border-emerald-500 dark:bg-emerald-600 dark:hover:bg-emerald-700",
+				"bg-[var(--color-success,oklch(0.62_0.18_156))] text-white hover:bg-[oklch(0.55_0.16_156)] focus-visible:ring-[oklch(0.62_0.18_156_/_0.20)] focus-visible:border-[oklch(0.62_0.18_156)] dark:bg-[oklch(0.68_0.18_158)] dark:hover:bg-[oklch(0.62_0.16_158)] active:scale-[0.98] shadow-sm hover:shadow-md",
 			warning:
-				"bg-amber-500 text-white hover:bg-amber-600 focus-visible:ring-amber-500/20 focus-visible:border-amber-500 dark:bg-amber-600 dark:hover:bg-amber-700",
-			info: "bg-blue-500 text-white hover:bg-blue-600 focus-visible:ring-blue-500/20 focus-visible:border-blue-500 dark:bg-blue-600 dark:hover:bg-blue-700",
+				"bg-[var(--color-warning,oklch(0.76_0.16_72))] text-white hover:bg-[oklch(0.70_0.15_72)] focus-visible:ring-[oklch(0.76_0.16_72_/_0.20)] focus-visible:border-[oklch(0.76_0.16_72)] dark:bg-[oklch(0.80_0.16_72)] dark:hover:bg-[oklch(0.76_0.14_72)] active:scale-[0.98] shadow-sm hover:shadow-md",
+			info: "bg-[var(--color-info,oklch(0.62_0.15_220))] text-white hover:bg-[oklch(0.55_0.14_220)] focus-visible:ring-[oklch(0.62_0.15_220_/_0.20)] focus-visible:border-[oklch(0.62_0.15_220)] dark:bg-[oklch(0.68_0.15_222)] dark:hover:bg-[oklch(0.62_0.13_222)] active:scale-[0.98] shadow-sm hover:shadow-md",
 			purple:
-				"bg-purple-500 text-white hover:bg-purple-600 focus-visible:ring-purple-500/20 focus-visible:border-purple-500 dark:bg-purple-600 dark:hover:bg-purple-700",
-			pink: "bg-pink-500 text-white hover:bg-pink-600 focus-visible:ring-pink-500/20 focus-visible:border-pink-500 dark:bg-pink-600 dark:hover:bg-pink-700",
+				"bg-[oklch(0.58_0.22_290)] text-white hover:bg-[oklch(0.52_0.20_290)] focus-visible:ring-[oklch(0.58_0.22_290_/_0.20)] focus-visible:border-[oklch(0.58_0.22_290)] dark:bg-[oklch(0.62_0.22_290)] dark:hover:bg-[oklch(0.56_0.20_290)] active:scale-[0.98] shadow-sm hover:shadow-md",
+			pink: "bg-[oklch(0.65_0.20_340)] text-white hover:bg-[oklch(0.58_0.19_340)] focus-visible:ring-[oklch(0.65_0.20_340_/_0.20)] focus-visible:border-[oklch(0.65_0.20_340)] dark:bg-[oklch(0.68_0.20_340)] dark:hover:bg-[oklch(0.62_0.18_340)] active:scale-[0.98] shadow-sm hover:shadow-md",
 			indigo:
-				"bg-indigo-500 text-white hover:bg-indigo-600 focus-visible:ring-indigo-500/20 focus-visible:border-indigo-500 dark:bg-indigo-600 dark:hover:bg-indigo-700",
-			teal: "bg-teal-500 text-white hover:bg-teal-600 focus-visible:ring-teal-500/20 focus-visible:border-teal-500 dark:bg-teal-600 dark:hover:bg-teal-700",
-			cyan: "bg-cyan-500 text-white hover:bg-cyan-600 focus-visible:ring-cyan-500/20 focus-visible:border-cyan-500 dark:bg-cyan-600 dark:hover:bg-cyan-700",
-			rose: "bg-rose-500 text-white hover:bg-rose-600 focus-visible:ring-rose-500/20 focus-visible:border-rose-500 dark:bg-rose-600 dark:hover:bg-rose-700",
+				"bg-[oklch(0.55_0.18_265)] text-white hover:bg-[oklch(0.50_0.17_265)] focus-visible:ring-[oklch(0.55_0.18_265_/_0.20)] focus-visible:border-[oklch(0.55_0.18_265)] dark:bg-[oklch(0.60_0.18_265)] dark:hover:bg-[oklch(0.54_0.17_265)] active:scale-[0.98] shadow-sm hover:shadow-md",
+			teal: "bg-[oklch(0.58_0.16_180)] text-white hover:bg-[oklch(0.52_0.15_180)] focus-visible:ring-[oklch(0.58_0.16_180_/_0.20)] focus-visible:border-[oklch(0.58_0.16_180)] dark:bg-[oklch(0.62_0.16_180)] dark:hover:bg-[oklch(0.56_0.15_180)] active:scale-[0.98] shadow-sm hover:shadow-md",
+			cyan: "bg-[oklch(0.60_0.14_200)] text-white hover:bg-[oklch(0.54_0.13_200)] focus-visible:ring-[oklch(0.60_0.14_200_/_0.20)] focus-visible:border-[oklch(0.60_0.14_200)] dark:bg-[oklch(0.64_0.14_200)] dark:hover:bg-[oklch(0.58_0.13_200)] active:scale-[0.98] shadow-sm hover:shadow-md",
+			rose: "bg-[oklch(0.60_0.20_15)] text-white hover:bg-[oklch(0.54_0.19_15)] focus-visible:ring-[oklch(0.60_0.20_15_/_0.20)] focus-visible:border-[oklch(0.60_0.20_15)] dark:bg-[oklch(0.64_0.20_15)] dark:hover:bg-[oklch(0.58_0.19_15)] active:scale-[0.98] shadow-sm hover:shadow-md",
 			orange:
-				"bg-orange-500 text-white hover:bg-orange-600 focus-visible:ring-orange-500/20 focus-visible:border-orange-500 dark:bg-orange-600 dark:hover:bg-orange-700",
-			lime: "bg-lime-500 text-white hover:bg-lime-600 focus-visible:ring-lime-500/20 focus-visible:border-lime-500 dark:bg-lime-600 dark:hover:bg-lime-700",
+				"bg-[oklch(0.68_0.18_45)] text-white hover:bg-[oklch(0.62_0.17_45)] focus-visible:ring-[oklch(0.68_0.18_45_/_0.20)] focus-visible:border-[oklch(0.68_0.18_45)] dark:bg-[oklch(0.72_0.18_45)] dark:hover:bg-[oklch(0.66_0.17_45)] active:scale-[0.98] shadow-sm hover:shadow-md",
+			lime: "bg-[oklch(0.72_0.18_130)] text-white hover:bg-[oklch(0.66_0.17_130)] focus-visible:ring-[oklch(0.72_0.18_130_/_0.20)] focus-visible:border-[oklch(0.72_0.18_130)] dark:bg-[oklch(0.75_0.18_130)] dark:hover:bg-[oklch(0.70_0.17_130)] active:scale-[0.98] shadow-sm hover:shadow-md",
 			slate:
-				"bg-slate-500 text-white hover:bg-slate-600 focus-visible:ring-slate-500/20 focus-visible:border-slate-500 dark:bg-slate-600 dark:hover:bg-slate-700"
+				"bg-[oklch(0.50_0.02_260)] text-white hover:bg-[oklch(0.45_0.02_260)] focus-visible:ring-[oklch(0.50_0.02_260_/_0.20)] focus-visible:border-[oklch(0.50_0.02_260)] dark:bg-[oklch(0.55_0.02_260)] dark:hover:bg-[oklch(0.50_0.02_260)] active:scale-[0.98] shadow-sm hover:shadow-md"
 		}
 	}
 });

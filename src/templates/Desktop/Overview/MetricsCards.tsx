@@ -35,24 +35,24 @@ function MetricCard({
 	variant = "default"
 }: MetricCardProps) {
 	const variantStyles = {
-		default: "bg-primary/10 text-primary",
-		warning: "bg-amber-500/10 text-amber-600 dark:text-amber-500",
-		danger: "bg-destructive/10 text-destructive",
-		success: "bg-emerald-500/10 text-emerald-600 dark:text-emerald-500"
+		default: "bg-primary/10 text-primary dark:bg-primary/15",
+		warning: "bg-[var(--color-warning-bg,oklch(0.76_0.16_72_/_0.10))] text-[var(--color-warning-text,oklch(0.60_0.14_72))] dark:bg-[oklch(0.80_0.16_72_/_0.15)] dark:text-[oklch(0.85_0.14_72)]",
+		danger: "bg-[var(--color-danger-bg,oklch(0.58_0.22_27_/_0.10))] text-[var(--color-danger-text,oklch(0.58_0.22_27))] dark:bg-[oklch(0.704_0.191_22.216_/_0.15)] dark:text-[oklch(0.75_0.18_27)]",
+		success: "bg-[var(--color-success-bg,oklch(0.62_0.18_156_/_0.10))] text-[var(--color-success-text,oklch(0.45_0.16_156))] dark:bg-[oklch(0.68_0.18_158_/_0.15)] dark:text-[oklch(0.75_0.16_158)]"
 	};
 
 	const card = (
 		<Card
 			className={cn(
-				"metric-card-hover group overflow-hidden",
-				href ? "cursor-pointer" : "cursor-default"
+				"metric-card-hover group overflow-hidden transition-all duration-200",
+				href ? "cursor-pointer hover:shadow-lg" : "cursor-default"
 			)}
 		>
 			<CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
 				<CardTitle className="text-muted-foreground text-sm font-medium">{title}</CardTitle>
 				<div
 					className={cn(
-						"rounded-lg p-2 transition-transform duration-200 group-hover:scale-110",
+						"rounded-lg p-2.5 transition-all duration-200 group-hover:scale-110 shadow-sm",
 						variantStyles[variant]
 					)}
 				>
@@ -61,7 +61,9 @@ function MetricCard({
 			</CardHeader>
 			<CardContent>
 				<div className="text-2xl font-bold tracking-tight">{value}</div>
-				{description && <p className="text-muted-foreground mt-1 text-xs">{description}</p>}
+				{description && (
+					<p className="text-muted-foreground mt-1.5 text-xs leading-relaxed">{description}</p>
+				)}
 			</CardContent>
 		</Card>
 	);
